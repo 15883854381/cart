@@ -69,7 +69,7 @@
                                 @cancel="showArea = false" @confirm="onConfirm"
                                 title="请选择城市"
                                 :columns="city"
-                                :columns-field-names="{ text: 'title', value: 'id', children: 'children' }"/>
+                                :columns-field-names="{ text: 'text', value: 'id', children: 'children' }"/>
                     </van-popup>
 
 
@@ -84,7 +84,8 @@
                         </template>
                     </van-field>
                     <template v-for="(item, index) in (Number(sales))" :key="item">
-                        <van-field required v-model="list[index]" :name="'price_'+index" :label="`【${index + 1 }】次价`"
+                        <van-field type="digit" :maxlength="4" required v-model="list[index]" :name="'price_'+index"
+                                   :label="`【${index + 1 }】次价`"
                                    :placeholder="`请填第【${index + 1 }】次价格`"
                                    :rules="[{ required: true, message: `请填第【${index + 1 }】次价格` }]"/>
                     </template>
@@ -152,7 +153,7 @@ export default {
             showArea.value = false;
             upData.provinceID = selectedOptions[0].id
             upData.cityID = selectedOptions[0].id
-            upData.province_city = selectedOptions.map(item => item.title).join('/')
+            upData.province_city = selectedOptions.map(item => item.text).join('/')
         };
 
         // tab 切换
@@ -189,11 +190,18 @@ export default {
             let checkNum = Number(upData.sales) - 1;
             let num = 0
             for (let i = 0; i <= checkNum; i++) {
+                console.log(list[i])
+                if (Number(list[i]) > 2000) {
+                    showNotify({type: 'danger', message: '线索金额不能大于 【2000】 元'});
+                    updisabled.value = false;
+                    return false;
+                }
                 upData[`unitPrice_${i + 1}`] = list[i]
                 if (i > 0) {
                     if (Number(list[i]) > num) {
-                        showNotify({type: 'danger', message: '价格不能高与第一次'});
-                        break
+                        showNotify({type: 'danger', message: '价格不能高与上一次'});
+                        updisabled.value = false;
+                        return false;
                     }
                 }
                 num = Number(list[i])
@@ -215,6 +223,7 @@ export default {
         async function get_CityOrCar() {
             // 城市数据
             City().then((res) => {
+
                 city.value = res.data.data
             })
             // 汽车品牌数据

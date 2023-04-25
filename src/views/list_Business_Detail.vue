@@ -6,18 +6,19 @@
 
     <div class="Detail">
         <div class="Detail_big_title">
-            【四川.成都】 奔驰
+            <!--            【四川.成都】 奔驰-->
+            【{{ detail_data.provinceCity }}】 {{ detail_data.brandname }}
         </div>
         <div class="Detail_text_box">
             <span class="Detail_title">联系人：</span>
-            <span class="Detail_name">李先生</span>
+            <span class="Detail_name">{{ detail_data.user_name }}</span>
         </div>
 
         <div class="Detail_text_box">
             <span class="Detail_title">联系方式：</span>
-            <span class="Detail_num">137********</span>
+            <span class="Detail_num">{{ detail_data.Cluephone_number }}</span>
             &nbsp;
-            <span class="Detail_num" style="color: #333333">【四川省.成都市】</span>
+            <span class="Detail_num" style="color: #333333">【{{ detail_data.PhoneBelongingplace }}】</span>
         </div>
         <!--        <div class="Detail_text_box">-->
         <!--            <span class="Detail_title">号码归属地：</span>-->
@@ -26,45 +27,44 @@
 
         <div class="user_tags">
             <span class="Detail_title">客户意向：</span>
-            <van-tag plain type="primary">二手车</van-tag>
-            <van-tag plain type="primary">全款</van-tag>
-            <van-tag plain type="primary">分期购</van-tag>
-            <van-tag plain type="primary">定金</van-tag>
-            <van-tag plain type="primary">便宜的</van-tag>
-            <van-tag plain type="primary">便宜的</van-tag>
-                        <van-tag plain type="primary">便宜的</van-tag>
+            <van-tag plain type="primary" v-for="item in detail_data.tags" :key="item">{{ item.tagName }}</van-tag>
         </div>
 
 
         <div class="Detail_text_box" style="margin-top: 0">
             <span class="Detail_title">线索价格：</span>
-            <span class="Detail_money" style="font-size: 18px;">49元/条</span>
+            <span class="Detail_money" style="font-size: 18px;">{{ detail_data.Price }}元/条</span>
         </div>
         <div class="Detail_progres">
-            <van-progress pivot-text="2/4" :percentage="50" color="#349C30" stroke-width="14"/>
-            <small class="Detail_small_text">剩余2次接单机会，接单后可见联系方式</small>
+            <van-progress :pivot-text="`${detail_data.Tosell}/${detail_data.sales}`" :percentage="detail_data.progress"
+                          color="#349C30" stroke-width="14"/>
+            <small class="Detail_small_text">剩余【{{ residueNum }}】次购买机会，购买后可见</small>
         </div>
         <div class="Detail_buy_btn">
             <van-row gutter="20">
                 <van-col span="12">
-                    <van-button block plain type="primary">买断剩余名额</van-button>
+                    <van-button block plain :disabled="!residueNum" @click="alert('1')" type="primary">
+                        {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
+                    </van-button>
                 </van-col>
                 <van-col span="12">
-                    <van-button block type="primary">立即接单</van-button>
+                    <van-button block :disabled="!residueNum" type="primary">
+                        {{ residueNum <= 0 ? '已无购余额' : '立即接单' }}
+                    </van-button>
                 </van-col>
             </van-row>
         </div>
         <!--        <van-divider/>-->
 
         <div class="Detail_text_box">
-            <span class="Detail_title">来源公司：</span>
-            <span class="Detail_num" style="color: #333333">成都***有限公司</span>
+            <span class="Detail_title">线索来源：</span>
+            <span class="Detail_num" style="color: #333333">{{ detail_data.clueName }}</span>
         </div>
         <div class="Detail_text_box">
             <van-row>
                 <van-col span="12">
                     <span class="Detail_title">已发布：</span>
-                    <span style="color: #333" class="Detail_name">500 条</span>
+                    <span style="color: #333" class="Detail_name">{{ detail_data.upClueNum }} 条</span>
                 </van-col>
                 <van-col span="12">
                     <span class="Detail_title">好评率：</span>
@@ -106,8 +106,8 @@
 
     </div>
 
-    <List_box></List_box>
-    <List_box></List_box>
+      <List_box @click="toUrl(item)" v-for="item in listData" :Cluedata="item" :key="item"></List_box>
+  <!--    <List_box></List_box>-->
 
 
 </template>
@@ -115,12 +115,59 @@
 <script>
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
+import {getClueDetail,getClueList} from "@/api/clue"
+
+import {onMounted, ref} from "vue";
+import {useRoute, useRouter} from "vue-router";
 
 export default {
     name: "list_Business_Detail",
     components: {
         List_box,
         line_text
+    },
+    setup() {
+        const router = useRouter();
+        let detail_data = ref([])
+        const route = useRoute()
+        let residueNum = ref(0);// 剩余下单次数
+        let listData = ref([]);
+
+        // 初始化页面数据
+        function getDetail() {
+            let id = route.query.id;
+            getClueDetail({id}).then((res) => {
+                if (res.data.code !== 200 || res.data?.code === undefined) {
+                    return false;
+                }
+                detail_data.value = res.data.data[0]
+                residueNum.value = detail_data.value.sales - detail_data.value.Tosell
+                console.log(detail_data.value)
+            })
+            getClueList().then((res)=>{
+                console.log(res)
+                listData.value = res.data.data;
+            })
+        }
+
+
+        function toUrl(item) {
+            console.log(item)
+            router.replace({path: "/list_Business_Detail", query: {id: item.id}});
+        }
+
+        onMounted(() => {
+            getDetail();
+
+        })
+
+        return {
+            detail_data,
+            residueNum,
+            listData,
+            toUrl
+        }
+
     }
 }
 </script>

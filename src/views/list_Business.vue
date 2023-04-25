@@ -2,26 +2,26 @@
   <!--    <van-search placeholder="请输入搜索关键词"/>-->
 
     <van-tabs v-model:active="active" @click-tab="onClickTab">
-        <van-tab title="新车">
-            <list_Business_NewBropdown></list_Business_NewBropdown>
+        <van-tab title="新车(线索)">
+            <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
             <div class="business_box">
-                <List_box v-for="item in clueList"  @click="toUrl"  :Cluedata="item" :key="item"></List_box>
-<!--                <List_box :Cluedata="data" ></List_box>-->
-<!--                <List_box :Cluedata="data" ></List_box>-->
-<!--                <List_box :Cluedata="data" ></List_box>-->
-<!--                <List_box :Cluedata="data" ></List_box>-->
-<!--                <List_box :Cluedata="data" ></List_box>-->
+                <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item" :key="item"></List_box>
+                <!--                <List_box :Cluedata="data" ></List_box>-->
+                <!--                <List_box :Cluedata="data" ></List_box>-->
+                <!--                <List_box :Cluedata="data" ></List_box>-->
+                <!--                <List_box :Cluedata="data" ></List_box>-->
+                <!--                <List_box :Cluedata="data" ></List_box>-->
             </div>
         </van-tab>
-        <van-tab title="二手车">
-            <list_Business_NewBropdown></list_Business_NewBropdown>
+        <van-tab title="二手车(线索)">
+            <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
             <div class="business_box">
                 <List_box :Cluedata="data" @click="toUrl"></List_box>
-                <List_box :Cluedata="data" ></List_box>
-                <List_box :Cluedata="data" ></List_box>
-                <List_box :Cluedata="data" ></List_box>
-                <List_box :Cluedata="data" ></List_box>
-                <List_box :Cluedata="data" ></List_box>
+                <List_box :Cluedata="data"></List_box>
+                <List_box :Cluedata="data"></List_box>
+                <List_box :Cluedata="data"></List_box>
+                <List_box :Cluedata="data"></List_box>
+                <List_box :Cluedata="data"></List_box>
             </div>
         </van-tab>
     </van-tabs>
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import {onMounted, reactive, ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import List_box from "@/components/List_box.vue";
 import list_Business_NewBropdown from "@/components/list_Business_NewBropdown.vue";
 import {useRouter} from "vue-router";
@@ -78,8 +78,8 @@ export default {
         };
 
         // 跳转详情页面
-        function toUrl() {
-            router.push("/list_Business_Detail");
+        function toUrl(item) {
+            router.push({path: "/list_Business_Detail", query: {id: item.id}});
         }
 
         // 切换tabs内容
@@ -87,11 +87,19 @@ export default {
             console.log("用户切换tabs: ", e)
         }
 
-        onMounted(()=>{
-            getClueList().then(res=>{
-                console.log(res)
+        function BropdownData(e) {
+            console.log(e)
+            getdata(e);
+        }
+
+        function getdata(data = {}) {
+            getClueList(data).then(res => {
                 clueList.value = res.data.data
             })
+        }
+
+        onMounted(() => {
+            getdata()
         })
 
         return {
@@ -100,7 +108,8 @@ export default {
             toUrl,
             onClickTab,
             data,
-            clueList
+            clueList,
+            BropdownData
 
         };
     },
@@ -108,9 +117,8 @@ export default {
 </script>
 
 <style lang="scss">
-:root:root {
+:root {
   --van-tabs-line-height: 38px;
-  --van-dropdown-menu-height: 38px;
   --van-dropdown-menu-title-font-size: 14px
 }
 

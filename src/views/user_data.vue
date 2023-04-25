@@ -6,7 +6,7 @@
     <div class="my-box" v-cloak>
         <div class="m-head">
             <div class="m-head-img">
-                <van-image round width="55px" height="55px" :src="userInfo.avatar"/>
+                <van-image round width="55px" height="55px" :src="userInfo.headimgurl"/>
             </div>
             <div class="m-head-user" v-if="userInfo.nickName">
                 <div class="m-head-name">{{ userInfo.nickName }}</div>
@@ -110,12 +110,6 @@
         >
             <van-cell-group inset>
                 <van-field
-                        v-model="userInfo.username"
-                        label="用户名"
-                        required
-                        placeholder="请输入用户名"
-                />
-                <van-field
                         v-model="userInfo.phone_number"
                         required
                         label="手机号"
@@ -151,7 +145,7 @@
 
 <script>
 import {onMounted, reactive, ref, toRefs, toRaw} from "vue";
-import {verification} from "../utils/tool";
+import {getQueryString, verification} from "../utils/tool";
 import {showNotify} from "vant";
 import {useRoute, useRouter} from "vue-router";
 import {getUserInfo, getcode, sendcode} from "../api/user_data";
@@ -162,8 +156,7 @@ export default {
         const router = useRouter();
         let userInfo = reactive({
             nickName: "",
-            avatar: "",
-            username: "",
+            headimgurl: "",
             phone_number: "",
             balance: 0.0,
             code: "", // 验证码
@@ -185,8 +178,7 @@ export default {
             // 页面跳转授权时，返回当前页面时 之前填写的数据会丢失 == 结束
 
             // feedback 反馈状态
-            // let feedback = verification(["username", "phone_number", "code"]);
-            if (!verification(["username", "phone_number", "code"], userInfo)) return false;
+            if (!verification(["phone_number", "code"], userInfo)) return false;
 
             // 向后端发送请求 验证 code 并跳转到 头像授权页面
             getcode(userInfo).then((res) => {
@@ -198,24 +190,21 @@ export default {
                         // 如果用户在登录时，查询数据库是否存在，存在就直接从数据库取出
                         // userInfo = { userInfo, ...res.data.data };
                         let {token} = res.data.data;
-                        sessionStorage.setItem("token", token); // 取出登录 token
-                        localStorage.setItem(
-                            "userInfo",
-                            JSON.stringify(toRaw(res.data.data))
+                        localStorage.setItem("token", token); // 取出登录 token
+                        localStorage.setItem("userInfo", JSON.stringify(toRaw(res.data.data))
                         ); // 登录成功后 将数据存放在 localStorage
+                        // router.go(0)
                         console.log(res.data.data);
-                        let {nickname, balance, avatar, phone_number} = res.data.data;
+                        let {nickname, balance, headimgurl, phone_number} = res.data.data;
                         userInfo.nickName = nickname;
                         userInfo.balance = balance;
-                        userInfo.avatar = avatar;
+                        userInfo.headimgurl = headimgurl;
                         userInfo.phone_number = phone_number;
                         shows.value = false;
                         return true;
-                        break;
                     case 201:
                         location.href =
-                            "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf02c02843479d12a&redirect_uri=http%3A%2F%2F172.16.13.219%3A8080%2Fuser_data&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
-
+                            "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf02c02843479d12a&redirect_uri=" + encodeURIComponent('http://172.16.13.219:8080/#/user_data') + "&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
                         break;
                 }
             });
@@ -231,11 +220,10 @@ export default {
          */
         function sendCodeBtn() {
             // feedback 反馈状态
-            if (!verification(["username", "phone_number"], userInfo)) return false;
+            if (!verification(["phone_number"], userInfo)) return false;
             // 请求发送验证码接口
             sendcode({
                 phone_number: userInfo.phone_number,
-                username: userInfo.username,
             }).then((res) => {
                 showNotify({
                     type: res.data.code !== 200 ? "danger" : "success",
@@ -266,32 +254,44 @@ export default {
          * 进入页面 获取用户的基本信息
          */
         function getuserInfo_fun() {
-            // 获取 url 的 code 参数
-            let {query} = route;
-            let weixinCode = query.code;
 
             // 用于授权跳转时，返回当前页面时 数据丢失问题
-            let userData = localStorage.getItem("userInfo")
-                ? JSON.parse(localStorage.getItem("userInfo"))
-                : userInfo;
-            console.log(userInfo)
+            let userData = {}
+            if (localStorage.getItem("userInfo")) {
+                userData = JSON.parse(localStorage.getItem("userInfo"))
+                let {nickname, balance, headimgurl, phone_number} = userData;
+                userInfo.nickName = nickname;
+                userInfo.balance = balance;
+                userInfo.headimgurl = headimgurl;
+                userInfo.phone_number = phone_number;
+            } else {
+                userData = userInfo
+            }
 
+            let weixinCode = getQueryString('code');
+            if (!weixinCode) return false; // 验证是否有 url 地址是否存在 code 参数
             // 获取用户授权后的code，并返回后端
             getUserInfo({...{weixinCode}, ...userData}).then((res) => {
                 // 登录成功后
                 // try {
-
                 if (res.data.code === 200) {
                     if (res.data.data?.token !== undefined) {
-                        sessionStorage.setItem("token", res.data.data.token); // 首次
-                        localStorage.setItem("userInfo", JSON.stringify(toRaw(res.data))); // 登录成功后 将数据存放在 localStorage
+                        localStorage.setItem("token", res.data.data.token); // 首次
+                        localStorage.setItem("userInfo", JSON.stringify(toRaw(res.data.data))); // 登录成功后 将数据存放在 localStorage
                     }
-                    let {nickname, balance, avatar, phone_number} = res.data.data;
+                    let {nickname, balance, headimgurl, phone_number} = res.data.data;
                     userInfo.nickName = nickname;
                     userInfo.balance = balance;
-                    userInfo.avatar = avatar;
+                    userInfo.headimgurl = headimgurl;
                     userInfo.phone_number = phone_number;
+                } else {
+                    showNotify({type: 'danger', message: res.data.mes});
+                    localStorage.clear();
                 }
+                setTimeout(() => {
+                    location.href = 'http://172.16.13.219:8080/#/user_data'
+                }, 3000)
+
             });
         }
 

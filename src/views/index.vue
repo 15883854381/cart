@@ -2,7 +2,7 @@
   <div>
     <router-view></router-view>
 
-    <van-tabbar @change="jump" v-model="active">
+    <van-tabbar style="border-top: 1px solid #ccc" @change="jump" v-model="active">
       <van-tabbar-item icon="home-o">购车线索</van-tabbar-item>
       <van-tabbar-item icon="search">我的线索</van-tabbar-item>
       <van-tabbar-item icon="friends-o">成交案例</van-tabbar-item>

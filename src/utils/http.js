@@ -2,16 +2,16 @@ import axios from "axios";
 
 const service = axios.create({
     timeout: 10000, // 设置统一的超时时长
-    baseURL: process.env.NODE_ENV === "production" ? `/java` : "https://3226qg7485.zicp.fun",  // 线上 or 开发
+    baseURL: process.env.NODE_ENV === "production" ? `https://3226qg7485.zicp.fun` : "https://3226qg7485.zicp.fun",  // 线上 or 开发
     headers: {
         get: {
             "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-            'token':sessionStorage.getItem('token')
+            'token':localStorage.getItem('token')
             // 在开发中，一般还需要单点登录或者其他功能的通用请求头，可以一并配置进来
         },
         post: {
             "Content-Type": "application/json;charset=utf-8",
-            "token":sessionStorage.getItem('token')
+            "token":localStorage.getItem('token')
             // 在开发中，一般还需要单点登录或者其他功能的通用请求头，可以一并配置进来
         },
     },

@@ -5,7 +5,7 @@
             <span class="box_title_title"><span
                     style="color: #1D69A7">{{ Cluedata.user_name }}</span>【{{ Cluedata.provinceCity }}】<span
                     style="color:#ff9900">【{{ Cluedata.cartName }}】</span></span>
-            <span class="box_title_time">半小时前</span>
+            <span class="box_title_time">{{ timeago(Cluedata.createtime) }}</span>
         </div>
 
         <!--收获地址和发布时间-->
@@ -64,17 +64,16 @@
 
 <script>
 import {onMounted, ref, toRefs} from "vue";
+import {timeago} from "@/utils/tool";
 
 export default {
     name: "List_box",
     props: ['Cluedata'],
     setup(props) {
-
-        let data = ref(props.Cluedata)
-
-
+        // let data = ref(props.Cluedata)
         return {
             ...toRefs(props),
+            timeago
         }
     }
 }
