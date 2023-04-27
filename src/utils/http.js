@@ -2,29 +2,32 @@ import axios from "axios";
 
 const service = axios.create({
     timeout: 10000, // 设置统一的超时时长
-    baseURL: process.env.NODE_ENV === "production" ? `https://3226qg7485.zicp.fun` : "https://3226qg7485.zicp.fun",  // 线上 or 开发
+    baseURL: process.env.NODE_ENV === "production" ? `https://3226qg7485.zicp.fun` : "http://h.199909.xyz/",  // 线上 or 开发
+
     headers: {
         get: {
             "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-            'token':localStorage.getItem('token')
+            // 'token':localStorage.getItem('token')
             // 在开发中，一般还需要单点登录或者其他功能的通用请求头，可以一并配置进来
         },
         post: {
             "Content-Type": "application/json;charset=utf-8",
-            "token":localStorage.getItem('token')
+
             // 在开发中，一般还需要单点登录或者其他功能的通用请求头，可以一并配置进来
         },
+        "token": localStorage.getItem('token')
     },
+
     withCredentials: true, // 跨域请求时是否需要使用凭证
     transformRequest: [
-        function(data) {
+        function (data) {
             data = JSON.stringify(data);
             return data;
         },
     ],
     // 在传递给 then/catch 前，修改响应数据
     transformResponse: [
-        function(data) {
+        function (data) {
             if (typeof data === "string" && data.startsWith("{")) {
                 data = JSON.parse(data);
             }
@@ -65,16 +68,29 @@ const showStatus = (status) => {
     return `${message}，请检查网络或联系管理员！`;
 };
 
+
+service.interceptors.request.use(
+    (config) => {
+        config.headers['token'] = localStorage.getItem('token') // 可以全局设置接口请求header中带token
+        return config
+    },
+    err => {
+        //Promise.reject()方法返回一个带有拒绝原因的Promise对象，在F12的console中显示报错
+        Promise.reject(err)
+    }
+);
+
+
 // 响应拦截器
 service.interceptors.response.use(
     (response) => {
-        const { status } = response;
+        const {status} = response;
         let msg = "";
         if (status < 200 || status >= 300) {
             // 处理http错误，抛到业务代码
             msg = showStatus(status);
             if (typeof response.data === "string") {
-                response.data = { msg };
+                response.data = {msg};
             } else {
                 response.data.msg = msg;
             }

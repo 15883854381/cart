@@ -7,25 +7,12 @@
                     style="color:#ff9900">【{{ Cluedata.cartName }}】</span></span>
             <span class="box_title_time">{{ timeago(Cluedata.createtime) }}</span>
         </div>
-
-        <!--收获地址和发布时间-->
-        <!--        <div class="box_city box_public">-->
-        <!--            &lt;!&ndash;            <span class="box_city_title">李女士</span>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <span class="box_city_time">归属地：<span class="box_city_time_city" >四川省成都市</span></span>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <span class="box_city_money"> 200 <small style="font-size: 12px" >￥</small> </span>&ndash;&gt;-->
-        <!--        </div>-->
         <div class="tag_box">
 
             <div class="tag_box_tag">
                 <span style="font-size: 13px"><b>意向：</b></span>
 
                 <van-tag v-for="item in Cluedata.child" :key="item" plain type="primary">{{ item.tagName }}</van-tag>
-                <!--                <van-tag plain type="primary">全款</van-tag>-->
-                <!--                <van-tag plain type="primary">分期购</van-tag>-->
-                <!--                <van-tag plain type="primary">定金</van-tag>-->
-                <!--                <van-tag plain type="primary">二手</van-tag>-->
-                <!--                <van-tag plain type="primary">二手</van-tag>-->
-                <!--                <van-tag plain type="primary">二手</van-tag>-->
             </div>
 
             <div class="tag_box_money">
@@ -35,30 +22,31 @@
             </div>
         </div>
         <!--进度条 -->
-        <div class="box_progress">
-            <van-progress :pivot-text="`${Cluedata.Tosell} / ${Cluedata.sales}`" :percentage="Cluedata.progress"
-                          color="#349C30" stroke-width="14"/>
-        </div>
-
-        <div class="box_footer">
-            <div class="box_footer_icon">
+        <slot name="progress">
+            <div class="box_progress">
+                <van-progress :pivot-text="`${Cluedata.Tosell} / ${Cluedata.sales}`" :percentage="Cluedata.progress"
+                              color="#349C30" stroke-width="14"/>
+            </div>
+        </slot>
+        <slot>
+            <div class="box_footer">
+                <div class="box_footer_icon">
                 <span>
                    <van-icon class="iconfont" color="#F0D9AB" class-prefix="my-icon" name="v11"/>
                 </span>
-                <span>
+                    <span>
                     <van-icon class="iconfont" class-prefix="my-icon" name="fabucheliang"/> {{ Cluedata.upClueNum }} 条
                 </span>
-                <span>
+                    <span>
                     <van-icon class="iconfont" class-prefix="my-icon" name="dianzan"/> 80%
                 </span>
+                </div>
+                <div>
+                    <!--                成都**汽贸有限公司-->
+                    {{ Cluedata.nclueName }}
+                </div>
             </div>
-            <div>
-                <!--                成都**汽贸有限公司-->
-                {{ Cluedata.nclueName }}
-            </div>
-        </div>
-
-
+        </slot>
     </div>
 </template>
 
@@ -70,7 +58,6 @@ export default {
     name: "List_box",
     props: ['Cluedata'],
     setup(props) {
-        // let data = ref(props.Cluedata)
         return {
             ...toRefs(props),
             timeago
@@ -106,11 +93,17 @@ export default {
       font-size: 16px;
       color: #D55324;
       font-weight: bold;
+      word-break: keep-all;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &_time {
       font-size: 12px;
       color: #CECECE;
+      min-width: 60px;
+      text-align: right;
     }
   }
 

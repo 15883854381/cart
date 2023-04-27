@@ -79,42 +79,29 @@
                 </van-row>
             </div>
         </div>
-        <van-cell-group title="分组1">
-            <van-cell title="上传商机" to="/up_Business" is-link/>
-            <van-cell title="定制商机" is-link/>
-            <van-cell title="设置提醒时段及区域" is-link/>
+        <van-cell-group>
+            <van-cell title="上传线索" @click="toUrl('/up_Business')" is-link/>
+            <van-cell title="定制线索" is-link/>
+            <van-cell title="我的线索" @click="toUrl('/my_Clue')" is-link/>
             <van-cell title="设置个人资料" is-link/>
-        </van-cell-group>
-        <van-cell-group title="分组1">
-            <van-cell title="账户明细" is-link/>
-            <van-cell title="我的商机" is-link/>
-            <van-cell title="我的申诉退款" is-link/>
-        </van-cell-group>
-        <van-cell-group title="分组1">
-            <van-cell title="已购买服务" is-link/>
-            <van-cell title="金牌会员" is-link/>
-        </van-cell-group>
-        <van-cell-group title="分组1">
-            <van-cell title="对公账户" is-link/>
-            <van-cell title="意见反馈" is-link/>
+            <van-cell title="退出登录" @click="clearData" is-link/>
             <van-cell title="关于我们" is-link/>
-        </van-cell-group>
 
+        </van-cell-group>
         <!-- 弹出层 confirmBtn 确认按钮 -->
         <van-dialog
                 v-model:show="shows"
                 title="填写信息"
                 @confirm="confirmBtn"
                 show-cancel-button
-                :before-close="confirmBtn"
-        >
+                :before-close="confirmBtn">
             <van-cell-group inset>
                 <van-field
                         v-model="userInfo.phone_number"
                         required
+                        type="number"
                         label="手机号"
-                        placeholder="请输入手机号"
-                />
+                        placeholder="请输入手机号"/>
 
                 <van-field
                         v-model="userInfo.code"
@@ -149,6 +136,8 @@ import {getQueryString, verification} from "../utils/tool";
 import {showNotify} from "vant";
 import {useRoute, useRouter} from "vue-router";
 import {getUserInfo, getcode, sendcode} from "../api/user_data";
+import {logVer} from "@/utils/tool";
+import {appid, wwwUrl} from "@/utils/constant";
 
 export default {
     setup() {
@@ -164,6 +153,7 @@ export default {
         let codeBtnDisabled = ref(false);
         let timeNumber = ref(60); // 倒计时
         let shows = ref(false);
+        let stateShow = ref(false);
 
         // 确认按钮 confirmBtn
         function confirmBtn(action) {
@@ -183,7 +173,6 @@ export default {
             // 向后端发送请求 验证 code 并跳转到 头像授权页面
             getcode(userInfo).then((res) => {
                 let {code} = res.data;
-                console.log(res)
                 // 200 表示登录成功  201 验证成功并跳转
                 switch (code) {
                     case 200:
@@ -201,11 +190,17 @@ export default {
                         userInfo.headimgurl = headimgurl;
                         userInfo.phone_number = phone_number;
                         shows.value = false;
+
                         return true;
                     case 201:
                         location.href =
-                            "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf02c02843479d12a&redirect_uri=" + encodeURIComponent('http://172.16.13.219:8080/#/user_data') + "&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+                            "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + appid + "&redirect_uri="
+                            + encodeURIComponent(wwwUrl + '/#/user_data') + "&response_type=code&scope=snsapi_userinfo&state=" +
+                            userInfo.phone_number + "#wechat_redirect";
                         break;
+                    case 304:
+                        showNotify({type: 'danger', message: res.data.mes});
+                        break
                 }
             });
         }
@@ -254,7 +249,6 @@ export default {
          * 进入页面 获取用户的基本信息
          */
         function getuserInfo_fun() {
-
             // 用于授权跳转时，返回当前页面时 数据丢失问题
             let userData = {}
             if (localStorage.getItem("userInfo")) {
@@ -275,10 +269,12 @@ export default {
                 // 登录成功后
                 // try {
                 if (res.data.code === 200) {
+
                     if (res.data.data?.token !== undefined) {
                         localStorage.setItem("token", res.data.data.token); // 首次
                         localStorage.setItem("userInfo", JSON.stringify(toRaw(res.data.data))); // 登录成功后 将数据存放在 localStorage
                     }
+
                     let {nickname, balance, headimgurl, phone_number} = res.data.data;
                     userInfo.nickName = nickname;
                     userInfo.balance = balance;
@@ -289,9 +285,8 @@ export default {
                     localStorage.clear();
                 }
                 setTimeout(() => {
-                    location.href = 'http://172.16.13.219:8080/#/user_data'
-                }, 3000)
-
+                    location.href = wwwUrl + '/#/user_data'
+                }, 1000)
             });
         }
 
@@ -299,9 +294,30 @@ export default {
             router.push("/Individual");
         }
 
+        // 上传线索做跳转前 进行验证
+        async function toUrl(url) {
+            let state = await logVer()
+            if (!state) {
+                router.push(url)
+            } else {
+                shows.value = state
+            }
+        }
+
         onMounted(() => {
             getuserInfo_fun();
+            let weixinCode = getQueryString('code');
+            if (!weixinCode) {
+                setTimeout(async () => {
+                    shows.value = await logVer()
+                }, 200)
+            }
+
         });
+
+        function clearData() {
+            localStorage.clear()
+        }
 
         return {
             confirmBtn,
@@ -312,6 +328,9 @@ export default {
             shows,
             timeNumber,
             codeBtnDisabled,
+            clearData,
+            stateShow,
+            toUrl
         };
     },
 };
@@ -392,6 +411,7 @@ export default {
   .money_input {
     // background-color: #fff;
     padding: 0 5px;
+    align-items: flex-end;
   }
 
   .money_input-border {

@@ -43,7 +43,7 @@
         <div class="Detail_buy_btn">
             <van-row gutter="20">
                 <van-col span="12">
-                    <van-button block plain :disabled="!residueNum" @click="alert('1')" type="primary">
+                    <van-button block @click="getBuy" plain :disabled="!residueNum" type="primary">
                         {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
                     </van-button>
                 </van-col>
@@ -106,7 +106,7 @@
 
     </div>
 
-      <List_box @click="toUrl(item)" v-for="item in listData" :Cluedata="item" :key="item"></List_box>
+    <List_box @click="toUrl(item)" v-for="item in listData" :Cluedata="item" :key="item"></List_box>
   <!--    <List_box></List_box>-->
 
 
@@ -115,10 +115,12 @@
 <script>
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
-import {getClueDetail,getClueList} from "@/api/clue"
+import {getClueDetail, getClueList} from "@/api/clue"
+import {showConfirmDialog} from 'vant';
 
 import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import {logVer} from "@/utils/tool";
 
 export default {
     name: "list_Business_Detail",
@@ -144,7 +146,7 @@ export default {
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
                 console.log(detail_data.value)
             })
-            getClueList().then((res)=>{
+            getClueList().then((res) => {
                 console.log(res)
                 listData.value = res.data.data;
             })
@@ -156,16 +158,27 @@ export default {
             router.replace({path: "/list_Business_Detail", query: {id: item.id}});
         }
 
+        async function getBuy() {
+
+            if (!await logVer()) {
+                return false;
+            }
+            //     成功后执行的方法
+
+
+        }
+
+
         onMounted(() => {
             getDetail();
-
         })
 
         return {
             detail_data,
             residueNum,
             listData,
-            toUrl
+            toUrl,
+            getBuy
         }
 
     }

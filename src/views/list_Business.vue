@@ -6,11 +6,6 @@
             <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
             <div class="business_box">
                 <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item" :key="item"></List_box>
-                <!--                <List_box :Cluedata="data" ></List_box>-->
-                <!--                <List_box :Cluedata="data" ></List_box>-->
-                <!--                <List_box :Cluedata="data" ></List_box>-->
-                <!--                <List_box :Cluedata="data" ></List_box>-->
-                <!--                <List_box :Cluedata="data" ></List_box>-->
             </div>
         </van-tab>
         <van-tab title="二手车(线索)">
@@ -26,6 +21,7 @@
         </van-tab>
     </van-tabs>
 
+
 </template>
 
 <script>
@@ -39,8 +35,7 @@ export default {
 
     components: {
         List_box,
-        list_Business_NewBropdown
-
+        list_Business_NewBropdown,
     },
     setup() {
         const router = useRouter();
@@ -103,13 +98,14 @@ export default {
         })
 
         return {
-            active,
+            BropdownData,
             getCity,
             toUrl,
             onClickTab,
             data,
             clueList,
-            BropdownData
+            active,
+
 
         };
     },

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <router-view></router-view>
+<!--    <router-view></router-view>-->
 
-    <van-tabbar style="border-top: 1px solid #ccc" @change="jump" v-model="active">
-      <van-tabbar-item icon="home-o">购车线索</van-tabbar-item>
-      <van-tabbar-item icon="search">我的线索</van-tabbar-item>
-      <van-tabbar-item icon="friends-o">成交案例</van-tabbar-item>
-      <van-tabbar-item icon="setting-o">个人设置</van-tabbar-item>
-    </van-tabbar>
+<!--    <van-tabbar style="border-top: 1px solid #ccc" @change="jump" v-model="active">-->
+<!--      <van-tabbar-item icon="home-o">购车线索</van-tabbar-item>-->
+<!--      <van-tabbar-item icon="search">我的线索</van-tabbar-item>-->
+<!--      <van-tabbar-item icon="friends-o">成交案例</van-tabbar-item>-->
+<!--      <van-tabbar-item icon="setting-o">个人设置</van-tabbar-item>-->
+<!--    </van-tabbar>-->
   </div>
 </template>
 

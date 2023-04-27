@@ -15,3 +15,8 @@ export function CartBand() {
 export function userTags() {
     return axios.post('Ulits/userTags')
 }
+
+// 验证用户是否登录
+export function loginVerify() {
+    return axios.post('Ulits/loginVerify')
+}

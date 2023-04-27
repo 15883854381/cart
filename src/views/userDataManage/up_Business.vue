@@ -40,13 +40,14 @@
                     <van-field
                             v-model="BrandTitle"
                             required
+                            readonly
                             name="BrandTitle"
                             label="购车品牌"
                             placeholder="购车品牌"
                             @click="getBrand"
                             :rules="[{ required: true, message: '请填写用户意向品牌' }]"
                     />
-                    <van-popup v-model:show="BrandshowPicker" round position="bottom">
+                    <van-popup  v-model:show="BrandshowPicker" round position="bottom">
                         <van-picker :columns-field-names="{ text: 'name', value: 'id', children: 'children' }"
                                     @confirm="queryBrandData"
                                     @change="selectBrand" title="汽车品牌" :columns="Brand_List"/>
@@ -109,7 +110,7 @@
 </template>
 
 <script>
-import {ref, reactive, toRefs, onMounted} from "vue";
+import {ref, reactive, toRefs, onMounted, watch} from "vue";
 import {areaList} from '@vant/area-data';
 import {showNotify, showToast} from 'vant';
 import shuttle from "@/components/Shuttle.vue";
@@ -233,8 +234,10 @@ export default {
         }
 
 
+
         onMounted(() => {
             get_CityOrCar()
+
         })
 
         // 验证 ================= 开始
@@ -264,7 +267,8 @@ export default {
             BrandshowPicker,
             selectBrand,
             ...toRefs(upData),
-            city
+            city,
+
 
         }
     }
@@ -274,9 +278,8 @@ export default {
 <style scoped>
 .push_btn {
     position: fixed;
-    bottom: 10px;
+    bottom: 65px;
     left: 0;
     right: 0;
-
 }
 </style>

@@ -2,11 +2,11 @@
     <div class="dropdown_box">
         <van-dropdown-menu>
             <!--刷新频率-->
-            <van-dropdown-item  ref="down_item_1">
-                <template #title >
-                    <div class="dropdown_title" >
+            <van-dropdown-item ref="down_item_1">
+                <template #title>
+                    <div class="dropdown_title">
                         <span>刷新频率</span>
-                        <span class="dropdown_title_subTitle" >{{RefreshTimeTitle}}</span>
+                        <span class="dropdown_title_subTitle">{{ RefreshTimeTitle }}</span>
                     </div>
                 </template>
                 <van-cell-group>
@@ -18,11 +18,11 @@
                 </van-cell-group>
             </van-dropdown-item>
             <!--城市-->
-            <van-dropdown-item  ref="down_item_2">
-                <template #title >
-                    <div class="dropdown_title" >
-                        <span class="dropdown_title" >城市</span>
-                        <div class="dropdown_title_subTitle" >{{provinceIDTitle}}</div>
+            <van-dropdown-item ref="down_item_2">
+                <template #title>
+                    <div class="dropdown_title">
+                        <span class="dropdown_title">城市</span>
+                        <div class="dropdown_title_subTitle">{{ provinceIDTitle }}</div>
                     </div>
                 </template>
 
@@ -39,10 +39,10 @@
             </van-dropdown-item>
             <!--购买名额-->
             <van-dropdown-item title="购买名额" ref="down_item_3">
-                <template #title >
-                    <div class="dropdown_title" >
-                        <span class="dropdown_title" >购买名额</span>
-                        <div class="dropdown_title_subTitle" >{{buyNumTitle}}</div>
+                <template #title>
+                    <div class="dropdown_title">
+                        <span class="dropdown_title">购买名额</span>
+                        <div class="dropdown_title_subTitle">{{ buyNumTitle }}</div>
                     </div>
                 </template>
                 <van-cell @click="buyNumClick(item)" :title="item.text" :key="item" v-for="item in buy_num">
@@ -53,10 +53,10 @@
             </van-dropdown-item>
             <!--车型-->
             <van-dropdown-item title="车型" ref="down_item_4">
-                <template #title >
-                    <div class="dropdown_title" >
-                        <span class="dropdown_title" >车型</span>
-                        <div class="dropdown_title_subTitle" >{{CartBantIDTitle}}</div>
+                <template #title>
+                    <div class="dropdown_title">
+                        <span class="dropdown_title">车型</span>
+                        <div class="dropdown_title_subTitle">{{ CartBantIDTitle }}</div>
                     </div>
                 </template>
                 <van-list
@@ -88,8 +88,8 @@ import {CartBand, City} from "@/api/utils";
 
 export default {
     name: 'list_Business_NewBropdown',
-    emits:['BropdownData'],
-    setup(props,context) {
+    emits: ['BropdownData'],
+    setup(props, context) {
 
         const activeId = ref(1); // 城市选择器
         const activeIndex = ref(0); // 城市选择器
@@ -126,8 +126,8 @@ export default {
             down_item_4: null,
         }); // 关闭下拉菜单
 
-        const pull_data = ()=>{
-            context.emit('BropdownData',Bropdown)
+        const pull_data = () => {
+            context.emit('BropdownData', Bropdown)
         }
         // =============  获取数据 ================
         // 获取城市id
@@ -192,12 +192,10 @@ export default {
         async function get_CityOrCar() {
             // 城市数据
             City().then((res) => {
-                console.log(res)
                 city.value = res.data.data
             })
             // 汽车品牌数据
             CartBand().then((res) => {
-                console.log(res)
                 Brandlist.value = res.data.data
             });
         }
@@ -231,33 +229,35 @@ export default {
 };
 </script>
 
-<style scoped lang="scss" >
-:root{
-    --van-dropdown-menu-height:35px;
-    //--van-dropdown-menu-title-line-height:50px
+<style scoped lang="scss">
+:root {
+  --van-dropdown-menu-height: 35px;
+  //--van-dropdown-menu-title-line-height:50px
 }
 
 .dropdown_box {
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 
-    .van-button {
-        border-radius: unset;
-    }
+  .van-button {
+    border-radius: unset;
+  }
 
 }
 
-:deep(.van-dropdown-menu__title:after){
-    top: 28% !important;
+:deep(.van-dropdown-menu__title:after) {
+  top: 28% !important;
 }
-.dropdown_title{
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    &_subTitle{
-        margin-top:-4px ;
-    }
+
+.dropdown_title {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+
+  &_subTitle {
+    margin-top: -4px;
+  }
 
 
 }

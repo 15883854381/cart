@@ -26,7 +26,8 @@
   <!--    </div>-->
 
 
-    <van-popup v-model:show="show" round position="bottom">
+    <van-popup closeable v-model:show="show" round position="bottom">
+        <div class="closeable" ></div>
         <van-tree-select
                 @click-item="SelectedTags"
                 v-model:active-id="activeId"
@@ -159,6 +160,9 @@ export default {
 .please {
   font-size: 14px;
   color: #C8C9D6;
+}
+.closeable{
+    height: 35px;
 }
 
 </style>

@@ -1,4 +1,9 @@
 import {showNotify} from "vant";
+import {loginVerify} from "@/api/utils";
+import {showConfirmDialog} from 'vant';
+import router from "@/router";
+import {useRoute} from "vue-router";
+
 
 /**
  *
@@ -55,21 +60,21 @@ export function timeago(dateTimeStamp) {
         result = "刚刚"
     } else {
         result = " " + '2' + "天前"
-       //  var datetime = new Date();
-       //  datetime.setTime(dateTimeStamp);
-       // let Nyear = datetime.getFullYear();
-       // let Nmonth = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
-       // let Ndate = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
-       // let Nhour = datetime.getHours() < 10 ? "0" + datetime.getHours() : datetime.getHours();
-       // let Nminute = datetime.getMinutes() < 10 ? "0" + datetime.getMinutes() : datetime.getMinutes();
-       // let Nsecond = datetime.getSeconds() < 10 ? "0" + datetime.getSeconds() : datetime.getSeconds();
-       //  result = Nyear + "-" + Nmonth + "-" + Ndate
+        //  var datetime = new Date();
+        //  datetime.setTime(dateTimeStamp);
+        // let Nyear = datetime.getFullYear();
+        // let Nmonth = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
+        // let Ndate = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
+        // let Nhour = datetime.getHours() < 10 ? "0" + datetime.getHours() : datetime.getHours();
+        // let Nminute = datetime.getMinutes() < 10 ? "0" + datetime.getMinutes() : datetime.getMinutes();
+        // let Nsecond = datetime.getSeconds() < 10 ? "0" + datetime.getSeconds() : datetime.getSeconds();
+        //  result = Nyear + "-" + Nmonth + "-" + Ndate
     }
     return result;
 }
 
 
-export function  getQueryString(name) {
+export function getQueryString(name) {
     const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
     const result = window.location.search.substring(1).match(reg);
     if (result != null) {
@@ -77,5 +82,36 @@ export function  getQueryString(name) {
     }
     return null;
 }
+
+// 登录验证
+export async function logVer() {
+    let res = await loginVerify()
+    switch (res.data.code) {
+        case 306:
+            showConfirmDialog({
+                title: '资料审核',
+                message: `${res.data.mes}`
+            }).then(() => {
+                console.log('跳转页面')
+                // router.push('/user_data')
+            })
+            return false;
+
+        case 305 || 304:
+            if (router.currentRoute.value.path !== '/user_data') {
+                showConfirmDialog({
+                    title: '登录提醒',
+                    message:
+                        '您还未登录/注册，请先去登录【登录可查看更多】',
+                }).then(() => {
+                    router.push('/user_data')
+                })
+            }
+            return true;
+        case 200:
+            return false
+    }
+}
+
 
 // 通过原生 JS 去获取 code
