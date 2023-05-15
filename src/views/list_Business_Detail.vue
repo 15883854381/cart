@@ -48,7 +48,7 @@
                     </van-button>
                 </van-col>
                 <van-col span="12">
-                    <van-button block :disabled="!residueNum" type="primary">
+                    <van-button @click="getBuy" block :disabled="!residueNum" type="primary">
                         {{ residueNum <= 0 ? '已无购余额' : '立即接单' }}
                     </van-button>
                 </van-col>
@@ -116,11 +116,14 @@
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
 import {getClueDetail, getClueList} from "@/api/clue"
-import {showConfirmDialog} from 'vant';
+import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 
 import {onMounted, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {logVer} from "@/utils/tool";
+import {loginVerify} from "@/api/utils";
+import {CeatedOrder} from "@/api/order";
+import router from "@/router";
 
 export default {
     name: "list_Business_Detail",
@@ -129,43 +132,70 @@ export default {
         line_text
     },
     setup() {
-        const router = useRouter();
         let detail_data = ref([])
         const route = useRoute()
         let residueNum = ref(0);// 剩余下单次数
         let listData = ref([]);
 
         // 初始化页面数据
-        function getDetail() {
-            let id = route.query.id;
+        function getDetail(clueid) {
+            let id = clueid || route.query.id;
             getClueDetail({id}).then((res) => {
                 if (res.data.code !== 200 || res.data?.code === undefined) {
                     return false;
                 }
                 detail_data.value = res.data.data[0]
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
-                console.log(detail_data.value)
             })
             getClueList().then((res) => {
-                console.log(res)
                 listData.value = res.data.data;
+                closeToast()
             })
         }
 
 
         function toUrl(item) {
-            console.log(item)
-            router.replace({path: "/list_Business_Detail", query: {id: item.id}});
+            showLoadingToast({
+                message: '加载中...',
+                forbidClick: true,
+            });
+            getDetail(item.id)
         }
 
         async function getBuy() {
 
-            if (!await logVer()) {
-                return false;
+            let state = await logVer();
+            switch (state) {
+                case 3060:
+                    showNotify("你还不具备购买条件，若需购买请联系客服")
+                    return false
+                case 3058:
+                    return false
+                case 3059:
+                    return false
             }
+
+            let clue_id = route.query.id
+            // 创建订单并存在数据库
+            CeatedOrder({clue_id}).then((res) => {
+                // console.log(res.data.data) // 订单号
+                let data = res.data
+                console.log(data)
+                if(data.code === 200){
+                    router.push({
+                        path:'/payment',
+                        query: {
+                            out_trade_no : data.data.out_trade_no  //参数
+                        }
+                    })
+                }else {
+                    showNotify({
+                        type:'danger',
+                        message:data.mes
+                    })
+                }
+            })
             //     成功后执行的方法
-
-
         }
 
 

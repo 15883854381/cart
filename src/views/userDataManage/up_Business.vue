@@ -116,6 +116,7 @@ import {showNotify, showToast} from 'vant';
 import shuttle from "@/components/Shuttle.vue";
 import {upClue} from "@/api/clue";
 import {CartBand, City} from "@/api/utils";
+import router from "@/router";
 
 
 export default {
@@ -216,8 +217,8 @@ export default {
                     updisabled.value = false;
                 } else {
                     showNotify({type: 'success', message: mes});
+                    router.replace('/user_data')
                 }
-                console.log(res)
             })
         }
 

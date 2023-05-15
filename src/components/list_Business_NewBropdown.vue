@@ -52,30 +52,30 @@
                 </van-cell>
             </van-dropdown-item>
             <!--车型-->
-            <van-dropdown-item title="车型" ref="down_item_4">
-                <template #title>
-                    <div class="dropdown_title">
-                        <span class="dropdown_title">车型</span>
-                        <div class="dropdown_title_subTitle">{{ CartBantIDTitle }}</div>
-                    </div>
-                </template>
-                <van-list
-                        v-model:loading="loading"
-                        :finished="finished"
-                        finished-text="没有更多了"
-                        @load="onLoad">
-                    <van-cell @click="CartBrandClick({id: 117, name: '全部'})" title="全部">
-                        <template v-if="CartBantID === 0" #right-icon>
-                            <van-icon name="success" color="#1989fa"/>
-                        </template>
-                    </van-cell>
-                    <van-cell @click="CartBrandClick(item)" v-for="item in newBrand" :key="item" :title="item.name">
-                        <template v-if="CartBantID === item.id" #right-icon>
-                            <van-icon name="success" color="#1989fa"/>
-                        </template>
-                    </van-cell>
-                </van-list>
-            </van-dropdown-item>
+            <!--            <van-dropdown-item title="车型" ref="down_item_4">-->
+            <!--                <template #title>-->
+            <!--                    <div class="dropdown_title">-->
+            <!--                        <span class="dropdown_title">车型</span>-->
+            <!--                        <div class="dropdown_title_subTitle">{{ CartBantIDTitle }}</div>-->
+            <!--                    </div>-->
+            <!--                </template>-->
+            <!--                <van-list-->
+            <!--                        v-model:loading="loading"-->
+            <!--                        :finished="finished"-->
+            <!--                        finished-text="没有更多了"-->
+            <!--                        @load="onLoad">-->
+            <!--                    <van-cell @click="CartBrandClick({id: 117, name: '全部'})" title="全部">-->
+            <!--                        <template v-if="CartBantID === 0" #right-icon>-->
+            <!--                            <van-icon name="success" color="#1989fa"/>-->
+            <!--                        </template>-->
+            <!--                    </van-cell>-->
+            <!--                    <van-cell @click="CartBrandClick(item)" v-for="item in newBrand" :key="item" :title="item.name">-->
+            <!--                        <template v-if="CartBantID === item.id" #right-icon>-->
+            <!--                            <van-icon name="success" color="#1989fa"/>-->
+            <!--                        </template>-->
+            <!--                    </van-cell>-->
+            <!--                </van-list>-->
+            <!--            </van-dropdown-item>-->
         </van-dropdown-menu>
     </div>
 </template>
@@ -83,7 +83,6 @@
 
 <script>
 import {onMounted, reactive, ref, toRefs} from 'vue';
-// import {areaList} from '@vant/area-data';
 import {CartBand, City} from "@/api/utils";
 
 export default {
@@ -94,7 +93,6 @@ export default {
         const activeId = ref(1); // 城市选择器
         const activeIndex = ref(0); // 城市选择器
         let city = ref(null);
-        let is_num = ref(0)
         const time_list = [
             {text: '不刷新', second: 0},
             {text: '30秒', second: 30},
@@ -141,19 +139,20 @@ export default {
 
         // 设置刷新频率
         function getTime(item) {
-
             Bropdown.RefreshTime = item.second
             BropdownTitle.RefreshTimeTitle = item.text
-            down_item.down_item_1.toggle();
             pull_data();
+            down_item.down_item_1.toggle();
+
         }
 
         // 获取是否有购买名额
         function buyNumClick(item) {
             Bropdown.buyNum = item.id
             BropdownTitle.buyNumTitle = item.text
-            down_item.down_item_3.toggle();
             pull_data();
+            down_item.down_item_3.toggle();
+
         }
 
         // 获取汽车品牌
@@ -171,23 +170,6 @@ export default {
         let newBrand = ref([]);
         const loading = ref(false);
         const finished = ref(false);
-        const onLoad = () => {
-            // 异步更新数据
-            // 汽车品牌数据 数据在页面中酒加载
-            setTimeout(() => {
-                for (let i = 0; i < 10; i++) {
-                    newBrand.value.push(Brandlist.value[is_num.value]);
-                    is_num.value += 1
-                }
-                // 加载状态结束
-                loading.value = false;
-                let num = Brandlist.value.length - 2;
-                // 数据全部加载完成
-                if (is_num.value >= num) {
-                    finished.value = true;
-                }
-            }, 1000);
-        };
 
         async function get_CityOrCar() {
             // 城市数据
@@ -219,7 +201,6 @@ export default {
             ...toRefs(Bropdown),
             ...toRefs(BropdownTitle),
             buy_num,
-            onLoad,
             loading,
             finished,
             newBrand

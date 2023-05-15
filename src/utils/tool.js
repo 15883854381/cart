@@ -86,8 +86,12 @@ export function getQueryString(name) {
 // 登录验证
 export async function logVer() {
     let res = await loginVerify()
+    console.log(res)
     switch (res.data.code) {
+        case 401:
         case 306:
+        case 307:
+        case 308:
             showConfirmDialog({
                 title: '资料审核',
                 message: `${res.data.mes}`
@@ -95,9 +99,9 @@ export async function logVer() {
                 console.log('跳转页面')
                 // router.push('/user_data')
             })
-            return false;
-
-        case 305 || 304:
+            return 3058;
+        case 305:
+        case 304:
             if (router.currentRoute.value.path !== '/user_data') {
                 showConfirmDialog({
                     title: '登录提醒',
@@ -107,9 +111,39 @@ export async function logVer() {
                     router.push('/user_data')
                 })
             }
-            return true;
+            return 3059;
+        case 309:
+            // showNotify("你还不具备购买条件，若需购买请联系客服");
+            return 3060;
+        case 400:
+            // showNotify("你还不具备上传条件，若需上传请联系客服");
+            return 3061;
         case 200:
-            return false
+            return true;
+
+        // case 306:
+        //     showConfirmDialog({
+        //         title: '资料审核',
+        //         message: `${res.data.mes}`
+        //     }).then(() => {
+        //         console.log('跳转页面')
+        //         // router.push('/user_data')
+        //     })
+        //     return false;
+        //
+        // case 305 || 304:
+        //     if (router.currentRoute.value.path !== '/user_data') {
+        //         showConfirmDialog({
+        //             title: '登录提醒',
+        //             message:
+        //                 '您还未登录/注册，请先去登录【登录可查看更多】',
+        //         }).then(() => {
+        //             router.push('/user_data')
+        //         })
+        //     }
+        //     return true;
+        // case 200:
+        //     return true
     }
 }
 

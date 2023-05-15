@@ -56,7 +56,7 @@ import {timeago} from "@/utils/tool";
 
 export default {
     name: "List_box",
-    props: ['Cluedata'],
+    props: ['Cluedata','percentage'],
     setup(props) {
         return {
             ...toRefs(props),

@@ -5,18 +5,18 @@
         </div>
 
         <van-tabbar style="border-top: 1px solid #ccc;margin-top: 50px" v-model="active">
-            <van-tabbar-item to="/list_Business" icon="home-o">购车线索</van-tabbar-item>
-            <van-tabbar-item to="/my_Business" icon="search">我的线索</van-tabbar-item>
-            <van-tabbar-item to="/deal_Business" icon="friends-o">成交案例</van-tabbar-item>
-            <van-tabbar-item to="/user_data" icon="setting-o">个人设置</van-tabbar-item>
+            <van-tabbar-item @click="getRouter('/list_Business')" icon="home-o">购车线索</van-tabbar-item>
+            <!--            <van-tabbar-item @click="getRouter('/my_Business')" icon="search">我的线索</van-tabbar-item>-->
+            <van-tabbar-item @click="getRouter('/deal_Business')" icon="friends-o">成交案例</van-tabbar-item>
+            <van-tabbar-item @click="getRouter('/user_data')" icon="setting-o">个人设置</van-tabbar-item>
         </van-tabbar>
     </div>
 </template>
 
 <script>
-import {useRoute, useRouter} from 'vue-router'
-import {computed, onMounted, ref} from "vue";
-import {showConfirmDialog} from "vant";
+import {useRoute} from 'vue-router'
+import {onMounted, ref} from "vue";
+import router from "@/router";
 
 export default {
     name: 'App',
@@ -35,11 +35,18 @@ export default {
             "/deal_Business",
             "/user_data",
         ];
+
+        function getRouter(e) {
+            router.push(e)
+
+        }
+
         onMounted(() => {
             active.value = routerList.findIndex((item) => item === route.path);
         });
         return {
             active,
+            getRouter
         };
     }
 

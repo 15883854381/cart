@@ -26,8 +26,9 @@
                     @click="jumpUserCenter"
                     v-if="userInfo.nickName"
             >
-                <text class="m-head-edit-user-font">个人中心</text>
-                <van-icon name="arrow" size="13"/>
+                <!--                <text class="m-head-edit-user-font">个人中心</text>-->
+                <text class="m-head-edit-user-font"></text>
+                <!--                <van-icon name="arrow" size="13"/>-->
             </div>
         </div>
 
@@ -81,17 +82,18 @@
         </div>
         <van-cell-group>
             <van-cell title="上传线索" @click="toUrl('/up_Business')" is-link/>
-            <van-cell title="定制线索" is-link/>
-            <van-cell title="我的线索" @click="toUrl('/my_Clue')" is-link/>
-            <van-cell title="设置个人资料" is-link/>
-            <van-cell title="退出登录" @click="clearData" is-link/>
+            <van-cell title="我的订单" @click="toUrl('/my_Clue')" is-link/>
+            <van-cell title="我的线索" @click="toUrl('/UpOrder')" is-link/>
+            <van-cell title="联系客服" to="/customer"  is-link/>
             <van-cell title="关于我们" is-link/>
+            <van-cell title="退出登录" @click="clearData" is-link/>
+            <van-cell title="测试用" to="/test" is-link/>
 
         </van-cell-group>
         <!-- 弹出层 confirmBtn 确认按钮 -->
         <van-dialog
                 v-model:show="shows"
-                title="填写信息"
+                title="登录/注册"
                 @confirm="confirmBtn"
                 show-cancel-button
                 :before-close="confirmBtn">
@@ -138,6 +140,7 @@ import {useRoute, useRouter} from "vue-router";
 import {getUserInfo, getcode, sendcode} from "../api/user_data";
 import {logVer} from "@/utils/tool";
 import {appid, wwwUrl} from "@/utils/constant";
+import {loginVerify} from "@/api/utils";
 
 export default {
     setup() {
@@ -297,11 +300,21 @@ export default {
         // 上传线索做跳转前 进行验证
         async function toUrl(url) {
             let state = await logVer()
-            if (!state) {
-                router.push(url)
-            } else {
-                shows.value = state
+            if (url === '/up_Business' && state === 3061) {
+                showNotify("你还不具备上传条件，若需上传请联系客服");
+                return false
             }
+
+            switch (state) {
+                case 3058:
+                    return false
+                case 3059:
+                    shows.value = true
+                    return false
+                default:
+                    await router.push(url)
+            }
+            console.log(state)
         }
 
         onMounted(() => {
@@ -309,7 +322,19 @@ export default {
             let weixinCode = getQueryString('code');
             if (!weixinCode) {
                 setTimeout(async () => {
-                    shows.value = await logVer()
+                    let resCOde = await logVer();
+                    console.log(resCOde)
+                    switch (resCOde) {
+                        case 3058:
+                            return false
+                        case 3059:
+                            shows.value = true
+                            return false
+                    }
+                    console.log(resCOde)
+                    // shows.value = !([305, 304] in resCOde.data.code);
+
+                    console.log(shows.value)
                 }, 200)
             }
 
@@ -317,6 +342,7 @@ export default {
 
         function clearData() {
             localStorage.clear()
+            router.go(0)
         }
 
         return {
