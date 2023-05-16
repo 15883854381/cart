@@ -31,13 +31,13 @@
 <!--        </div>-->
 
         <div class="footer_btn" v-if="dataItem.flat===4">
-            <van-button plain round size="mini" @click="refund_reason">&nbsp;订单申述&nbsp;</van-button>
-            <van-button type="primary" round size="mini" @click="OrderEditQueryBtn">&nbsp;订单有效&nbsp;</van-button>
-            <van-button type="success" @click="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;</van-button>
+            <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>
+            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;</van-button>
+            <van-button type="success" @click.stop="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;</van-button>
         </div>
 
         <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3">
-            <van-button type="success" @click="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;
+            <van-button type="success" @click.stop="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;
             </van-button>
         </div>
     </div>

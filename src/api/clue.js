@@ -20,3 +20,9 @@ export function getClueDetail(id) {
     console.log(id)
     return axios.post('Clue/getClueDetail', id)
 }
+
+// 删除线索
+export function deleteCurlData(id) {
+    console.log(id)
+    return axios.post('Clue/deleteCurl', id)
+}

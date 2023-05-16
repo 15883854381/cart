@@ -49,7 +49,7 @@
                 </van-col>
                 <van-col span="12">
                     <van-button @click="getBuy" block :disabled="!residueNum" type="primary">
-                        {{ residueNum <= 0 ? '已无购余额' : '立即接单' }}
+                        {{ detail_data.count > 0 ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单'}}
                     </van-button>
                 </van-col>
             </van-row>

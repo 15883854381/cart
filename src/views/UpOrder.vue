@@ -1,5 +1,5 @@
 <template>
-    <div class="box" v-for="item in data">
+    <div class="box" v-for="(item,index) in data" :key="item.id">
         <div>
             <van-cell title="订单号：123456789456">
                 <template #value>
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div class="footer_btn">
-            <van-button plain round size="mini">&nbsp;删除线索&nbsp;</van-button>
+            <van-button @click="DeleteClue(item,index)" plain round size="mini">&nbsp;删除线索&nbsp;</van-button>
             <van-button type="primary" @click="LookClue(item.id)" round size="mini" v-if="item.flag===1">&nbsp;查看线索&nbsp;</van-button>
         </div>
     </div>
@@ -61,7 +61,8 @@
 import {getUpOrder} from '@/api/upOrder'
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import {showNotify} from "vant";
+import {showConfirmDialog, showNotify} from "vant";
+import {deleteCurlData} from "@/api/clue";
 
 export default {
     name: "UpOrder",
@@ -85,9 +86,38 @@ export default {
                 }
             })
         }
+
+        // 删除个人线索
+        function DeleteClue(e, index) {
+            showConfirmDialog({
+                title: '删除提醒',
+                message:
+                    `确认删除【${e.user_name}】【${e.province}.${e.city}】\n\r这条线索吗？删除后不可恢复，请谨慎操作`,
+            }).then(() => {
+                deleteCurlData({id: e.id}).then(res => {
+                    let {code, mes} = res.data
+                    if (code === 200) {
+                        data.value.splice(index, 1)
+                    }
+                    showNotify({
+                        type: code === 200 ? 'success' : 'danger',
+                        message: mes
+                    })
+
+                })
+            }).catch(() => {
+                showNotify({
+                    type: 'primary',
+                    message: '已取消删除'
+                })
+            });
+
+        }
+
         return {
             data,
-            LookClue
+            LookClue,
+            DeleteClue
         }
     }
 }
