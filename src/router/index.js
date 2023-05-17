@@ -85,6 +85,10 @@ const routes = [
         path: "/customer",
         component: () => import("../views/customer.vue"),
         meta: {title: "联系客服"},
+    }, {
+        path: "/upUserInfo",
+        component: () => import("../views/userDataManage/upUserInfo.vue"),
+        meta: {title: "上传审核信息"},
     }
 ];
 

@@ -3,24 +3,24 @@
         <div class="content">
             <div class="box_title box_public">
             <span class="box_title_title"><span
-                    style="color: #1D69A7">{{item.user_name}}</span>【{{item.provinceCity}}】<span
-                    style="color:#ff9900">【{{item.brandname}}】</span></span>
+                    style="color: #1D69A7">{{ item.user_name }}</span>【{{ item.provinceCity }}】<span
+                    style="color:#ff9900">【{{ item.brandname }}】</span></span>
                 <!--                <span class="box_title_time">半小时前</span>-->
             </div>
             <div class="box_title_money">
-                <span>{{item.creat_time}}</span>
-                <span class="money_color">{{item.price}} <small>￥</small> </span>
+                <span>{{ item.creat_time }}</span>
+                <span class="money_color">{{ item.price }} <small>￥</small> </span>
             </div>
         </div>
     </div>
     <div class="content_item">
         <div class="item">
             <span class="item_title">订单编号：</span>
-            <span>{{item.out_trade_no}}</span>
+            <span>{{ item.out_trade_no }}</span>
         </div>
         <div class="item">
             <span class="item_title">订单创建时间：</span>
-            <span>{{item.creat_time}}</span>
+            <span>{{ item.creat_time }}</span>
         </div>
         <div class="item">
             <span class="item_title">订单状态：</span>
@@ -31,7 +31,7 @@
     <div class="footer_btn">
         <van-cell title="合计金额">
             <template #value>
-                <span class="money_color">{{item.price}} <small>￥</small> </span>
+                <span class="money_color">{{ item.price }} <small>￥</small> </span>
             </template>
         </van-cell>
         <van-button type="primary" size="large" @click="payemtBtn">立即购买</van-button>
@@ -51,7 +51,7 @@ export default {
         const route = useRoute()
         const router = useRouter()
 
-        let item  = ref({});
+        let item = ref({});
 
         if (route.query?.out_trade_no === undefined) {
             router.replace('/')
@@ -87,7 +87,8 @@ export default {
                 paySign: data.paySign
             }
             WxPay.wxPay(res).then((res) => {
-                alert("我成功了")
+                // alert("我成功了")
+                router.replace('/my_Clue')
                 // 支付成功
                 console.log(res)
             }).catch((err) => {

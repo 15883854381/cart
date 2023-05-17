@@ -19,12 +19,12 @@ const service = axios.create({
     },
 
     withCredentials: true, // 跨域请求时是否需要使用凭证
-    transformRequest: [
-        function (data) {
-            data = JSON.stringify(data);
-            return data;
-        },
-    ],
+    // transformRequest: [
+    //     function (data) {
+    //         data = JSON.stringify(data);
+    //         return data;
+    //     },
+    // ],
     // 在传递给 then/catch 前，修改响应数据
     transformResponse: [
         function (data) {
@@ -48,8 +48,8 @@ service.interceptors.request.use(
         return Promise.resolve(error);
     }
 );
-
-// 根据不同的状态码，生成不同的提示信息
+//
+// // 根据不同的状态码，生成不同的提示信息
 const showStatus = (status) => {
     const statusData = {
         400: "请求错误(400)",

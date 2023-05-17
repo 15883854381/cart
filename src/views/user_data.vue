@@ -57,6 +57,7 @@
                 </van-col>
             </van-row>
 
+
             <div>
                 <van-row gutter="20" class="tag_box">
                     <van-col span="8" class="tag_content">
@@ -83,11 +84,12 @@
         <van-cell-group>
             <van-cell title="上传线索" @click="toUrl('/up_Business')" is-link/>
             <van-cell title="我的订单" @click="toUrl('/my_Clue')" is-link/>
-            <van-cell title="我的线索" @click="toUrl('/UpOrder')" is-link/>
-            <van-cell title="联系客服" to="/customer"  is-link/>
+            <van-cell title="我上传的线索" @click="toUrl('/UpOrder')" is-link/>
+            <van-cell title="上传审核信息" to="/upUserInfo" is-link/>
+            <van-cell title="联系客服" to="/customer" is-link/>
             <van-cell title="关于我们" is-link/>
             <van-cell title="退出登录" @click="clearData" is-link/>
-            <van-cell title="测试用" to="/test" is-link/>
+            <!--            <van-cell title="测试用" to="/test" is-link/>-->
 
         </van-cell-group>
         <!-- 弹出层 confirmBtn 确认按钮 -->
