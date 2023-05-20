@@ -1,4 +1,5 @@
 <template>
+    <van-notice-bar mode="closeable">请在 5 分钟内完成支付，否则订单将被取消</van-notice-bar>
     <div class="box">
         <div class="content">
             <div class="box_title box_public">
@@ -44,6 +45,7 @@ import {useRoute, useRouter} from "vue-router";
 import {onMounted, ref} from 'vue'
 import WxPay from "@/utils/wxPay";
 import {orderDetail} from '@/api/order'
+import {showDialog} from "vant";
 
 export default {
     name: "payment",
@@ -92,7 +94,19 @@ export default {
                 // 支付成功
                 console.log(res)
             }).catch((err) => {
-                alert("失败了")
+                showDialog({
+                    message: '订单已超时，请重新下单',
+                    theme: 'round-button',
+                }).then(() => {
+                    // on close
+                    router.push({
+                        path: "/list_Business_Detail",
+                        query: {
+                            type: item.value.cart_type,
+                            clue_id: item.value.clue_id,
+                        }
+                    });
+                });
                 // 支付失败
                 console.log(err)
             })

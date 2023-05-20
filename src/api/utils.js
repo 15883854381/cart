@@ -20,3 +20,13 @@ export function userTags() {
 export function loginVerify() {
     return axios.post('Ulits/loginVerify')
 }
+
+// 分享线索
+export function shareClue() {
+    return axios.post('Clue/shareClue')
+}
+
+// 分享线索
+export function getUserId() {
+    return axios.post('Ulits/UserId')
+}

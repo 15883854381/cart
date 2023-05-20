@@ -1,5 +1,5 @@
 <template>
-
+    <van-notice-bar mode="closeable">订单交易成功后将展示当前线索的联系方式</van-notice-bar>
   <!--    <van-cell-group inset>-->
   <!--        <van-cell  title="" title-style="color:red;font-size:18px;font-weight:600;" />-->
   <!--    </van-cell-group>-->
@@ -7,7 +7,8 @@
     <div class="Detail">
         <div class="Detail_big_title">
             <!--            【四川.成都】 奔驰-->
-            【{{ detail_data.provinceCity }}】 {{ detail_data.brandname }}
+            <span v-if="detail_data.provinceCity">【{{ detail_data.provinceCity }}】</span>
+            <span v-if="detail_data.brandname">{{ detail_data.brandname }}</span>
         </div>
         <div class="Detail_text_box">
             <span class="Detail_title">联系人：</span>
@@ -16,8 +17,9 @@
 
         <div class="Detail_text_box">
             <span class="Detail_title">联系方式：</span>
-            <span class="Detail_num">{{ detail_data.Cluephone_number }}</span>
-            &nbsp;
+            <a class="Detail_num" v-if="detail_data.count"
+               :href="'tel:'+ detail_data.Cluephone_number ">{{ detail_data.Cluephone_number }}</a>
+            <span v-else class="Detail_num">{{ detail_data.Cluephone_number }}</span>
             <span class="Detail_num" style="color: #333333">【{{ detail_data.PhoneBelongingplace }}】</span>
         </div>
         <!--        <div class="Detail_text_box">-->
@@ -43,18 +45,19 @@
         <div class="Detail_buy_btn">
             <van-row gutter="20">
                 <van-col span="12">
-                    <van-button block @click="getBuy" plain :disabled="!residueNum" type="primary">
+                    <van-button block @click="getBuy(0)" plain :disabled="!residueNum" type="primary">
                         {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
                     </van-button>
                 </van-col>
                 <van-col span="12">
-                    <van-button @click="getBuy" block :disabled="!residueNum" type="primary">
-                        {{ detail_data.count > 0 ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单'}}
+                    <!--                    :disabled="detail_data.count > 0?'fasle':!residueNum"-->
+                    <van-button :disabled="detail_data.count > 0? true:!residueNum" @click="getBuy(1)" block
+                                type="primary">
+                        {{ detail_data.count > 0 ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单' }}
                     </van-button>
                 </van-col>
             </van-row>
         </div>
-        <!--        <van-divider/>-->
 
         <div class="Detail_text_box">
             <span class="Detail_title">线索来源：</span>
@@ -62,41 +65,38 @@
         </div>
         <div class="Detail_text_box">
             <van-row>
-                <van-col span="12">
+                <van-col span="8">
                     <span class="Detail_title">已发布：</span>
                     <span style="color: #333" class="Detail_name">{{ detail_data.upClueNum }} 条</span>
                 </van-col>
-                <van-col span="12">
+                <van-col span="8">
                     <span class="Detail_title">好评率：</span>
                     <span style="color: #333" class="Detail_name">80%</span>
                 </van-col>
-
+                <van-col span="8">
+                    <span class="Detail_title">分享：</span>
+                    <span style="color: #333" @click="Showshare" class="Detail_name">
+                        <van-icon size="18" name="share-o"/>
+                    </span>
+                </van-col>
             </van-row>
-
-
         </div>
 
-        <div>
+        <div v-if="BuyNumData.length">
             <table border="1" class="Detail_table">
                 <tr>
                     <th>购买记录</th>
                     <th>购买时间</th>
                     <th>购买条数</th>
                 </tr>
-                <tr>
-                    <td>A***</td>
-                    <td>2022-04-01</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>A***</td>
-                    <td>2022-04-01</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>A***</td>
-                    <td>2022-04-01</td>
-                    <td>2</td>
+                <tr v-for="item in BuyNumData" :key="item">
+                    <td>
+                        <van-text-ellipsis :content="item.user_name"/>
+                    </td>
+                    <td>
+                        <van-text-ellipsis :content="item.payment_time "/>
+                    </td>
+                    <td>{{ item.buy_num }}</td>
                 </tr>
             </table>
         </div>
@@ -107,7 +107,13 @@
     </div>
 
     <List_box @click="toUrl(item)" v-for="item in listData" :Cluedata="item" :key="item"></List_box>
-  <!--    <List_box></List_box>-->
+
+    <van-share-sheet
+            v-model:show="showShare"
+            title="立即分享给好友"
+            :options="options"
+            @select="onSelect"
+    />
 
 
 </template>
@@ -115,15 +121,16 @@
 <script>
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
-import {getClueDetail, getClueList} from "@/api/clue"
-import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
+import {getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
+import {closeToast, showLoadingToast, showNotify} from 'vant';
 
-import {onMounted, ref} from "vue";
+import {onMounted, ref, getCurrentInstance} from "vue";
 import {useRoute, useRouter} from "vue-router";
+
 import {logVer} from "@/utils/tool";
-import {loginVerify} from "@/api/utils";
+import {getUserId, shareClue} from "@/api/utils";
 import {CeatedOrder} from "@/api/order";
-import router from "@/router";
+import wx from 'weixin-js-sdk'
 
 export default {
     name: "list_Business_Detail",
@@ -131,16 +138,91 @@ export default {
         List_box,
         line_text
     },
+
     setup() {
+        const {proxy} = getCurrentInstance()
         let detail_data = ref([])
         const route = useRoute()
+        const router = useRouter();
         let residueNum = ref(0);// 剩余下单次数
         let listData = ref([]);
+        let showShare = ref(false);
+        let BuyNumData = ref([]);
+        const options = [
+            {name: '微信', icon: 'wechat'},
+            {name: '复制链接', icon: 'link'},
+            {name: '二维码', icon: 'qrcode'},
+        ];
+
+        //
+        function onSelect(option) {
+
+            switch (option.name) {
+                case '微信':
+                    shareClue().then(res => {
+                        let {data, code} = res.data
+                        wx.config({
+                            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                            appId: data.appId, // 必填，公众号的唯一标识
+                            timestamp: data.timestamp, // 必填，生成签名的时间戳
+                            nonceStr: data.noncestr, // 必填，生成签名的随机串
+                            signature: data.signature,// 必填，签名
+                            jsApiList: [
+                                'updateAppMessageShareData',
+                                'updateTimelineShareData',
+                                'checkJsApi',
+                                'onMenuShareTimeline',
+                                'onMenuShareAppMessage', //分享给微信朋友
+                                'showOptionMenu']// 必填，需要使用的JS接口列表
+                        })
+
+                        wx.ready(function () {   //需在用户可能点击分享按钮前就先调用
+                            wx.updateAppMessageShareData({
+                                title: '1', // 分享标题
+                                desc: '1', // 分享描述
+                                link: encodeURIComponent('http://h.199909.xyz'), // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                                success: function () {
+                                    // 设置成功
+                                }
+                            })
+                        });
+                        wx.error(function (e) {
+                            console.log(e)
+                        })
+
+                    })
+                    break
+                case '复制链接':
+                    getUserId().then(res => {
+                        let {data, code} = res.data
+                        let location = window.location.href
+                        if (code === 200) {
+                            location = window.location.href + '&userid=' + data.id
+                        }
+                        proxy.$copyText(location).then(() => {
+                            showNotify({
+                                type: 'success',
+                                message: '复制成功'
+                            })
+                        })
+                    })
+                    break
+                case '二维码':
+                    break
+            }
+            showShare.value = false;
+        }
+
+        function Showshare() {
+            showShare.value = true
+        }
+
 
         // 初始化页面数据
         function getDetail(clueid) {
-            let id = clueid || route.query.id;
-            getClueDetail({id}).then((res) => {
+            let clue_id = clueid || route.query.clue_id;
+            let type = route.query.type
+            getClueDetail({clue_id, type}).then((res) => {
                 if (res.data.code !== 200 || res.data?.code === undefined) {
                     return false;
                 }
@@ -148,21 +230,22 @@ export default {
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
             })
             getClueList().then((res) => {
-                listData.value = res.data.data;
+                listData.value = res.data.data.data;
                 closeToast()
             })
         }
 
-
+        // 跳转
         function toUrl(item) {
             showLoadingToast({
                 message: '加载中...',
                 forbidClick: true,
             });
-            getDetail(item.id)
+            getDetail(item.clue_id)
         }
 
-        async function getBuy() {
+        // 获取购买金额
+        async function getBuy(buytype) {
 
             let state = await logVer();
             switch (state) {
@@ -175,40 +258,65 @@ export default {
                     return false
             }
 
-            let clue_id = route.query.id
+            let clue_id = route.query.clue_id
+            let type = route.query.type
+
             // 创建订单并存在数据库
-            CeatedOrder({clue_id}).then((res) => {
-                // console.log(res.data.data) // 订单号
+            CeatedOrder({clue_id, type, buytype}).then((res) => {
                 let data = res.data
                 console.log(data)
-                if(data.code === 200){
+                if (data.code === 200) {
                     router.push({
-                        path:'/payment',
+                        path: '/payment',
                         query: {
-                            out_trade_no : data.data.out_trade_no  //参数
+                            out_trade_no: data.data.out_trade_no  //参数
                         }
                     })
-                }else {
+                } else {
                     showNotify({
-                        type:'danger',
-                        message:data.mes
+                        type: 'danger',
+                        message: data.mes
                     })
                 }
             })
             //     成功后执行的方法
         }
 
+        // 分享线索
+        function getUserid() {
+            let userid = route.query?.userid;
+            if (userid !== undefined) {
+                localStorage.setItem('userid', userid)
+            }
+        }
+
+        // 获取当前线索的购买订单
+        function SearchClueBuyNUm() {
+            let clue_id = route.query.clue_id;
+            SearchClueBuyNUmData({clue_id}).then(res => {
+                console.log(res)
+
+                BuyNumData.value = res.data.data
+            })
+        }
 
         onMounted(() => {
             getDetail();
+            getUserid()
+            SearchClueBuyNUm()
         })
 
         return {
             detail_data,
             residueNum,
             listData,
+            showShare,
+            options,
+            BuyNumData,
+            Showshare,
+            onSelect,
             toUrl,
-            getBuy
+            getBuy,
         }
 
     }
@@ -235,6 +343,10 @@ export default {
   &_name {
     font-size: 15px;
     font-weight: bold;
+    //display: flex;
+    //justify-content: center;
+    //flex-direction:column;
+    //align-items: center;
   }
 
   &_num {

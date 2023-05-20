@@ -1,7 +1,10 @@
 <template>
     <div class="box" v-for="(item,index) in data" :key="item.id">
         <div>
-            <van-cell title="订单号：123456789456">
+            <van-cell>
+                <template #title>
+                    <van-tag plain size="medium" type="primary">{{ item.cart_type === 1 ? '新车' : '二手车' }}</van-tag>
+                </template>
                 <template #value>
                     <span class="title_sub" :style="{color: item.flag ===1?'#42b983':'#D55324'}">
                     {{
@@ -14,9 +17,10 @@
         <!--标题-->
         <div class="content">
             <div class="box_title box_public">
-            <span class="box_title_title"><span
-                    style="color: #1D69A7">{{ item.user_name }}</span>【{{ item.province }}.{{ item.city }}】<span
-                    style="color:#ff9900">【{{ item.brand }}】</span></span>
+            <span class="box_title_title">
+                <span v-if="item.user_name" style="color: #1D69A7">{{ item.user_name }}</span>
+                <span v-if="item.province && item.city">【{{ item.province }}.{{ item.city }}】</span>
+                <span v-if="item.brand" style="color:#ff9900">【{{ item.brand }}】</span></span>
                 <!--                <span class="box_title_time">半小时前</span>-->
             </div>
             <div class="box_title_money">
@@ -27,7 +31,7 @@
         </div>
         <div class="footer_btn">
             <van-button @click="DeleteClue(item,index)" plain round size="mini">&nbsp;删除线索&nbsp;</van-button>
-            <van-button type="primary" @click="LookClue(item.id)" round size="mini" v-if="item.flag===1">&nbsp;查看线索&nbsp;</van-button>
+            <van-button type="primary" @click="LookClue(item)" round size="mini" v-if="item.flag===1">&nbsp;查看线索&nbsp;</van-button>
         </div>
     </div>
   <!--    <div class="box">-->
@@ -82,19 +86,21 @@ export default {
             router.replace({
                 path: 'list_Business_Detail',
                 query: {
-                    id: e
+                    clue_id: e.clue_id,
+                    type: e.cart_type
                 }
             })
         }
 
         // 删除个人线索
         function DeleteClue(e, index) {
+            console.log(e)
             showConfirmDialog({
                 title: '删除提醒',
                 message:
                     `确认删除【${e.user_name}】【${e.province}.${e.city}】\n\r这条线索吗？删除后不可恢复，请谨慎操作`,
             }).then(() => {
-                deleteCurlData({id: e.id}).then(res => {
+                deleteCurlData({clue_id: e.clue_id, type: e.cart_type}).then(res => {
                     let {code, mes} = res.data
                     if (code === 200) {
                         data.value.splice(index, 1)

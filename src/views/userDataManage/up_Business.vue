@@ -10,9 +10,11 @@
                             <van-field
                                     v-model="user_name"
                                     name="user_name"
+                                    required
+                                    :maxlength="1"
                                     label="用户（姓）"
                                     placeholder="请填写用户（姓）"
-                                    :rules="[{ required: true,validator:Uservalidator, message: '请填写用户姓名' }]"
+                                    :rules="[{ required: true, message: '请填写用户（姓）' }]"
                             />
                         </van-col>
                         <van-col span="10">
@@ -32,22 +34,22 @@
                             required
                             name="phone_number"
                             label="联系电话"
-                            placeholder="用户电话"
+                            :maxlength="11"
+                            placeholder="请填写联系电话"
                             type="number"
                             :rules="[{ required: true,validator:validator, message: '请输入正确的用户手机号码' }]"
                     />
 
                     <van-field
                             v-model="BrandTitle"
-                            required
                             readonly
+                            is-link
                             name="BrandTitle"
                             label="购车品牌"
                             placeholder="购车品牌"
                             @click="getBrand"
-                            :rules="[{ required: true, message: '请填写用户意向品牌' }]"
                     />
-                    <van-popup  v-model:show="BrandshowPicker" round position="bottom">
+                    <van-popup v-model:show="BrandshowPicker" round position="bottom">
                         <van-picker :columns-field-names="{ text: 'name', value: 'id', children: 'children' }"
                                     @confirm="queryBrandData"
                                     @change="selectBrand" title="汽车品牌" :columns="Brand_List"/>
@@ -56,7 +58,6 @@
 
                     <van-field
                             v-model="province_city"
-                            required
                             is-link
                             readonly
                             name="province_city"
@@ -100,9 +101,7 @@
 
         </van-tab>
         <van-tab title="二手车">
-            二手车
-
-
+            <UsedCar></UsedCar>
         </van-tab>
     </van-tabs>
 
@@ -117,12 +116,14 @@ import shuttle from "@/components/Shuttle.vue";
 import {upClue} from "@/api/clue";
 import {CartBand, City} from "@/api/utils";
 import router from "@/router";
+import UsedCar from "@/views/userDataManage/UsedCar.vue";
 
 
 export default {
     name: "up_Business",
     components: {
-        shuttle
+        shuttle,
+        UsedCar
     },
     setup() {
         let city = ref(null);
@@ -233,7 +234,6 @@ export default {
                 Brand_List.value = res.data.data
             });
         }
-
 
 
         onMounted(() => {

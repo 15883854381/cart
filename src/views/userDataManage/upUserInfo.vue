@@ -53,6 +53,7 @@ import {reactive, ref} from "vue";
 import {getStateData, UpUserInfo} from "@/api/upUserInfo";
 import router from "@/router";
 import {showNotify} from "vant";
+
 let form = reactive({
     companyName: '',
     fileList: [],
@@ -60,11 +61,15 @@ let form = reactive({
     username: '',
     phone_number: '',
 });
+let userInfo = JSON.parse(localStorage.getItem('userInfo'));
+
 let state = ref('0')
+
 // 判断是  个人认证 或 公司认证
 function getType(e) {
     form.type = e
 }
+
 // 获取提交数据
 function onSubmit(itemData) {
     const formData = new FormData();
@@ -88,6 +93,7 @@ function onSubmit(itemData) {
         })
     })
 }
+
 function getState() {
     getStateData().then(res => {
         let {code, data} = res.data
@@ -97,6 +103,10 @@ function getState() {
         console.log(data)
     })
 }
+
+
+form.phone_number = userInfo.phone_number
+
 getState()
 
 </script>

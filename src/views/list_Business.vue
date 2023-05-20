@@ -6,18 +6,13 @@
             <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
 
             <div class="business_box">
-                <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item" :key="item.id"></List_box>
+                <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item" :key="item.clue_id"></List_box>
             </div>
         </van-tab>
         <van-tab title="二手车(线索)">
-            <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
+            <list_Business_NewBropdown @BropdownData="OldBropdownData"></list_Business_NewBropdown>
             <div class="business_box">
-                <List_box :Cluedata="data" @click="toUrl"></List_box>
-                <List_box :Cluedata="data"></List_box>
-                <List_box :Cluedata="data"></List_box>
-                <List_box :Cluedata="data"></List_box>
-                <List_box :Cluedata="data"></List_box>
-                <List_box :Cluedata="data"></List_box>
+                <List_box :key="item.clue_id" :Cluedata="item" v-for="item in oleClue" @click="toUrl(item)"></List_box>
             </div>
         </van-tab>
     </van-tabs>
@@ -26,11 +21,11 @@
 </template>
 
 <script>
-import {onBeforeUnmount, onMounted, onUnmounted, reactive, ref} from 'vue';
+import {onBeforeUnmount, onMounted, ref} from 'vue';
 import List_box from "@/components/List_box.vue";
 import list_Business_NewBropdown from "@/components/list_Business_NewBropdown.vue";
 import {useRouter} from "vue-router";
-import {getClueCount, getClueList} from "@/api/clue";
+import {getClueCount, getClueList, SelectCartData} from "@/api/clue";
 import {showLoadingToast} from "vant";
 
 export default {
@@ -43,41 +38,26 @@ export default {
 
         const router = useRouter();
         const active = ref(0);
-        let data = {
-            "id": 34,
-            "sales": 2,
-            "Tosell": 1,
-            "user_name": "罗先生",
-            "sex": "男",
-            "Cluephone_number": "158*********",
-            "cartName": "宝骏",
-            "provinceCity": "辽宁省.邯郸市",
-            "progress": "50",
-            "Price": "1.00",
-            "upClueNum": 1,
-            "nclueName": "^o^    คิดถึง",
-            "child": [
-                {
-                    "clue_id": 34,
-                    "tagName": "急用"
-                },
-                {
-                    "clue_id": 34,
-                    "tagName": "全款"
-                }
-            ]
-        }
+        let data = {}
         let clueList = ref([]);
         let pageNum = ref(1);
+        let oldPageNum = ref(1);
         const loading = ref(false);
         const finished = ref(false);
         let ClueCOunt = ref(0);
         let timeTrue = null;
         let RefreshTime = 30;
+        let oldCartCount = ref(0)
 
         // 跳转详情页面
         function toUrl(item) {
-            router.push({path: "/list_Business_Detail", query: {id: item.id}});
+            router.push({
+                path: "/list_Business_Detail",
+                query: {
+                    type: active.value ? '2' : '1',
+                    clue_id: item.clue_id,
+                }
+            });
         }
 
 
@@ -89,12 +69,22 @@ export default {
             }
         }
 
+        function OldBropdownData(e) {
+            RefreshTime = e.RefreshTime
+            SelectCart(e)
+            if (e.RefreshTime === 0) {
+                clearInterval(timeTrue)
+            }
+        }
+
+
         function getdata(data = {}) {
             getClueList(data).then(res => {
-                clueList.value = res.data.data
+                let {data, count} = res.data.data
+                clueList.value = data
+                ClueCOunt.value = count
                 pageNum.value = 1
             })
-
         }
 
         // 获取线索总数量
@@ -103,7 +93,6 @@ export default {
                 ClueCOunt.value = e.data.data
             })
         }
-
 
         // 监听用是否下拉
         function handleScroll() {
@@ -132,22 +121,58 @@ export default {
             //滚动条到底部的条件
             if ((Math.ceil(scrollTop + windowHeight) === parseInt(scrollHeight)) && scrollTop !== 0) {
                 console.log('我触底了==1');
-                if (ClueCOunt.value > clueList.value.length) {
-                    console.log('我触底了==2')
-                    pageNum.value += 1
-                    getClueList({pageNum: pageNum.value}).then(res => {
-                        for (let item in res.data.data) {
-                            clueList.value.push(res.data.data[item])
-                        }
-                    })
+
+                if (active.value === 0) {
+                    // 在此处判断是否为 新车 二手车
+                    if (ClueCOunt.value > clueList.value.length) {
+                        console.log('新车触底了==2')
+                        pageNum.value += 1
+                        getClueList({pageNum: pageNum.value}).then(res => {
+                            let {data, count} = res.data.data
+                            ClueCOunt.value = count
+                            for (let item in data) {
+                                clueList.value.push(data[item])
+                            }
+                        })
+                    }
+                } else {
+                    console.log('二手车')
+                    if (oldCartCount.value > oleClue.value.length) {
+                        oldPageNum.value += 1
+                        SelectCartData({PageNum: oldPageNum}).then(res => {
+                            let {data, count} = res.data.data
+                            oldCartCount.value = count
+                            for (let item in data) {
+                                oleClue.value.push(data[item])
+                            }
+                        })
+                    }
                 }
+
             }
         }
 
+
+        // =============== 二手车 ===================
+
+        let oleClue = ref();
+
+        // 二手车的数据
+        function SelectCart(data) {
+            SelectCartData(data).then(res => {
+                let {data, count} = res.data.data
+                oleClue.value = data
+                oldCartCount.value = count
+            })
+        }
+
+
         onMounted(() => {
             getdata()
-            getClueCountFun()
+            // getClueCountFun()
             window.addEventListener('scroll', handleScroll)
+            //     ===== 二手车 =======
+            SelectCart()
         })
 
         onBeforeUnmount(() => {
@@ -158,12 +183,14 @@ export default {
 
         return {
             BropdownData,
+            OldBropdownData,
             toUrl,
             data,
             clueList,
             active,
             loading,
             finished,
+            oleClue
         };
     },
 };

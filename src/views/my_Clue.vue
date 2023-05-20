@@ -21,7 +21,7 @@ export default {
         })
 
         function tourl(e) {
-            router.push(`list_Business_Detail?id=${e.clue_id}`)
+            router.push(`list_Business_Detail?clue_id=${e.clue_id}&type=${e.cart_type}`)
         }
 
         return {

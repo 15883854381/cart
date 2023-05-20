@@ -13,3 +13,8 @@ export function sendcode(data){
 export function getcode(data){
     return axios.post('User/getcode',data)
 }
+
+// 获取用户的基本信息
+export function UserInfoData(data){
+    return axios.post('User/UserInfo',data)
+}

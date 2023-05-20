@@ -49,7 +49,7 @@ const routes = [
         component: () => import("../views/list_Business_Detail.vue"),
         meta: {title: "线索详情"},
         beforeEnter: (to) => {
-            if (to.query?.id === undefined) {
+            if (to.query?.clue_id === undefined || to.query?.type === undefined) {
                 router.replace('/list_Business')
             }
         },
@@ -89,6 +89,14 @@ const routes = [
         path: "/upUserInfo",
         component: () => import("../views/userDataManage/upUserInfo.vue"),
         meta: {title: "上传审核信息"},
+    }, {
+        path: "/share",
+        component: () => import("../views/share.vue"),
+        meta: {title: "我的分享"},
+    }, {
+        path: "/shareUserList",
+        component: () => import("../views/shareUserList.vue"),
+        meta: {title: "用户上传的线索"},
     }
 ];
 

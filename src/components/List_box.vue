@@ -2,9 +2,11 @@
     <div class="box">
         <!--标题-->
         <div class="box_title box_public">
-            <span class="box_title_title"><span
-                    style="color: #1D69A7">{{ Cluedata.user_name }}</span>【{{ Cluedata.provinceCity }}】<span
-                    style="color:#ff9900">【{{ Cluedata.cartName }}】</span></span>
+            <span class="box_title_title">
+                <span style="color: #1D69A7">{{ Cluedata.user_name }}</span>
+                <span v-if="Cluedata.provinceCity" >【{{ Cluedata.provinceCity }}】</span>
+                <span v-if="Cluedata.cartName" style="color:#ff9900">【{{ Cluedata.cartName }}】</span>
+            </span>
             <span class="box_title_time">{{ timeago(Cluedata.createtime) }}</span>
         </div>
         <div class="tag_box">
@@ -14,7 +16,6 @@
 
                 <van-tag v-for="item in Cluedata.child" :key="item" plain type="primary">{{ item.tagName }}</van-tag>
             </div>
-
             <div class="tag_box_money">
                 <span class="box_city_money">
                     {{ Cluedata.Price }} <small class="box_city_￥">￥</small>
@@ -56,7 +57,7 @@ import {timeago} from "@/utils/tool";
 
 export default {
     name: "List_box",
-    props: ['Cluedata','percentage'],
+    props: ['Cluedata', 'percentage'],
     setup(props) {
         return {
             ...toRefs(props),

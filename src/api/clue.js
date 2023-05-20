@@ -17,12 +17,21 @@ export function getClueCount() {
 
 // 获取线索详情
 export function getClueDetail(id) {
-    console.log(id)
     return axios.post('Clue/getClueDetail', id)
 }
 
 // 删除线索
-export function deleteCurlData(id) {
-    console.log(id)
-    return axios.post('Clue/deleteCurl', id)
+export function deleteCurlData(data) {
+    return axios.post('Clue/deleteCurl', data)
+}
+
+
+// 二手车
+export function SelectCartData(data) {
+    return axios.post('OldCart/SelectCart', data)
+}
+
+// 获取线索购买订单
+export function SearchClueBuyNUmData(data) {
+    return axios.post('Clue/SearchClueBuyNUm', data)
 }
