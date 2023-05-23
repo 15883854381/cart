@@ -15,6 +15,7 @@ export function getClueCount() {
     return axios.post('Clue/getClueCount')
 }
 
+
 // 获取线索详情
 export function getClueDetail(id) {
     return axios.post('Clue/getClueDetail', id)
@@ -34,4 +35,10 @@ export function SelectCartData(data) {
 // 获取线索购买订单
 export function SearchClueBuyNUmData(data) {
     return axios.post('Clue/SearchClueBuyNUm', data)
+}
+
+
+// 检查手机号码
+export function batchUcheckData(data){
+    return  axios.post('/Clue/Phonecheck',data)
 }

@@ -58,10 +58,10 @@
                     <van-grid-item icon="replay" @click="clearData" text="退出登录"/>
                 </van-grid>
             </div>
-            <div class="logout">
-                <van-button @click="clearData" color="linear-gradient(to right, #ff6034, #ee0a24)" block>退出登录
-                </van-button>
-            </div>
+<!--            <div class="logout">-->
+<!--                <van-button @click="clearData" color="linear-gradient(to right, #ff6034, #ee0a24)" block>退出登录-->
+<!--                </van-button>-->
+<!--            </div>-->
 
 
             <!-- 充值盒子 -->

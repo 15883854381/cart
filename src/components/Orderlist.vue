@@ -1,4 +1,5 @@
 <template>
+
     <div class="box">
         <div>
             <!--                        {{dataItem}}-->
@@ -25,15 +26,17 @@
                 <span class="money_color">{{ dataItem.price }} <small>￥</small> </span>
             </div>
         </div>
-<!--        <div class="footer_btn" v-if="dataItem.flat===2">-->
-<!--            <van-button plain round size="mini">&nbsp;取消订单&nbsp;</van-button>-->
-<!--            <van-button type="primary"  round size="mini">&nbsp;立即付款&nbsp;</van-button>-->
-<!--        </div>-->
+        <!--        <div class="footer_btn" v-if="dataItem.flat===2">-->
+        <!--            <van-button plain round size="mini">&nbsp;取消订单&nbsp;</van-button>-->
+        <!--            <van-button type="primary"  round size="mini">&nbsp;立即付款&nbsp;</van-button>-->
+        <!--        </div>-->
 
         <div class="footer_btn" v-if="dataItem.flat===4">
             <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>
-            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;</van-button>
-            <van-button type="success" @click.stop="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;</van-button>
+            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;
+            </van-button>
+            <van-button type="success" @click.stop="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;
+            </van-button>
         </div>
 
         <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3">
@@ -55,25 +58,27 @@ export default {
         let items = reactive(item)
 
         function callPhone(e) {
-            CallingPhone({
-                clue_id: e.clue_id,
-                out_trade_no:e.out_trade_no
-            }).then(res => {
-                if (res.data.code !== 200) {
-                    showNotify({
-                        type: 'danger',
-                        message: res.data.mes
-                    })
-                    return false;
-                }
-                showDialog({
-                    title: '电话回拨提醒',
-                    message: '回拨线路已启动成功，请注意来电提醒，若长时间为接听到电话，请重新拨打或联系客服解决',
-                }).then(() => {
-                    // on close
-                });
 
-            })
+            showDialog({
+                title: '来电提醒',
+                message: '电话接通中，【 请注意来电提醒 】，若长时间为接听到电话，请重新拨打或联系客服解决',
+                confirmButtonText: '立即拨打',
+                closeOnClickOverlay: true
+            }).then(() => {
+                CallingPhone({
+                    clue_id: e.clue_id,
+                    out_trade_no: e.out_trade_no,
+                    cart_type: e.cart_type,
+                }).then(res => {
+                    if (res.data.code !== 200) {
+                        showNotify({
+                            type: 'danger',
+                            message: res.data.mes
+                        })
+                        return false;
+                    }
+                })
+            });
         }
 
         function refund_reason() {

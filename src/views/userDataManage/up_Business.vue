@@ -29,14 +29,24 @@
                             </van-field>
                         </van-col>
                     </van-row>
+                    <!--                    <van-field-->
+                    <!--                            v-model="phone_number"-->
+                    <!--                            required-->
+                    <!--                            name="phone_number"-->
+                    <!--                            label="联系电话"-->
+                    <!--                            :maxlength="11"-->
+                    <!--                            placeholder="请填写联系电话"-->
+                    <!--                            type="number"-->
+                    <!--                            :rules="[{ required: true,validator:validator, message: '请输入正确的用户手机号码' }]"-->
+                    <!--                    />-->
                     <van-field
                             v-model="phone_number"
+                            type="number"
                             required
                             name="phone_number"
                             label="联系电话"
-                            :maxlength="11"
                             placeholder="请填写联系电话"
-                            type="number"
+                            @blur="batchUcheck"
                             :rules="[{ required: true,validator:validator, message: '请输入正确的用户手机号码' }]"
                     />
 
@@ -75,7 +85,7 @@
                     </van-popup>
 
 
-                    <shuttle @getSelectTtag="getSelectTtag"></shuttle>
+                    <shuttle @getSelectTtag="getSelectTtag" :active="active"></shuttle>
                     <van-field required name="radio" label="售卖次数">
                         <template #input>
                             <van-radio-group v-model="sales" direction="horizontal">
@@ -86,10 +96,25 @@
                         </template>
                     </van-field>
                     <template v-for="(item, index) in (Number(sales))" :key="item">
-                        <van-field type="digit" :maxlength="4" required v-model="list[index]" :name="'price_'+index"
-                                   :label="`【${index + 1 }】次价`"
-                                   :placeholder="`请填第【${index + 1 }】次价格`"
-                                   :rules="[{ required: true, message: `请填第【${index + 1 }】次价格` }]"/>
+                        <div style="display: flex;align-items: center;">
+                            <van-field @blur="moneyCheck(item)" type="digit" :maxlength="4" required
+                                       v-model="list[index]"
+                                       :name="'price_'+index"
+                                       :label="`【${index + 1 }】次价`"
+                                       :placeholder="`请填第【${index + 1 }】次价格`"
+                                       :rules="[{ required: true, message: `请填第【${index + 1 }】次价格` }]"/>
+
+                            <template v-if="Price_data !== null">
+                                <van-tag
+                                        @click="pushPrice(index,Price_data['unitPrice_' + (Number(index) + 1)])"
+                                        class="Price_tag" type="primary" size="small">
+                                    推荐：{{ Price_data['unitPrice_' + (Number(index) + 1)] }} 元
+                                </van-tag>
+                            </template>
+
+
+                        </div>
+
                     </template>
 
                 </van-cell-group>
@@ -101,7 +126,7 @@
 
         </van-tab>
         <van-tab title="二手车">
-            <UsedCar></UsedCar>
+            <UsedCar :active="active"></UsedCar>
         </van-tab>
     </van-tabs>
 
@@ -109,14 +134,15 @@
 </template>
 
 <script>
-import {ref, reactive, toRefs, onMounted, watch} from "vue";
+import {ref, reactive, toRefs, onMounted} from "vue";
 import {areaList} from '@vant/area-data';
 import {showNotify, showToast} from 'vant';
 import shuttle from "@/components/Shuttle.vue";
-import {upClue} from "@/api/clue";
+import {batchUcheckData, upClue} from "@/api/clue";
 import {CartBand, City} from "@/api/utils";
 import router from "@/router";
 import UsedCar from "@/views/userDataManage/UsedCar.vue";
+import {recommend_priceData} from "@/api/order";
 
 
 export default {
@@ -134,7 +160,6 @@ export default {
         const showArea = ref(false);
         let checked = ref('1'); // 售卖次数的价格
         let list = reactive({0: null, 1: null, 2: null});// 多个输入框
-        // 表单数据
         let upData = reactive({
             user_name: '',
             phone_number: '',
@@ -146,10 +171,11 @@ export default {
             province_city: '',
             sales: '1',
             userTags: [],
-        })
+        }) // 表单数据
         let updisabled = ref(false);
         let BrandshowPicker = ref(false)
         let Brand_List = ref([]);
+        let Price_data = ref({});
 
         // 城市数据 重构
         const onConfirm = ({selectedOptions}) => {
@@ -176,6 +202,7 @@ export default {
         function selectBrand({selectedOptions}) {
             upData.CartBrandID = selectedOptions[0].id
             upData.BrandTitle = selectedOptions[0].name
+            recommend_price(upData.CartBrandID)
         }
 
         // 确认 品牌的选中
@@ -183,6 +210,8 @@ export default {
             upData.CartBrandID = selectedOptions[0].id
             upData.BrandTitle = selectedOptions[0].name
             BrandshowPicker.value = false
+            recommend_price(upData.CartBrandID)
+
         }
 
         // ==============  处理 品牌 ============== 结束
@@ -223,6 +252,24 @@ export default {
             })
         }
 
+        /**
+         * 验证手机号码是否存在 和 正确
+         */
+        function batchUcheck() {
+            let data = validator(upData.phone_number)
+            if (data) {
+                batchUcheckData({phone_number: upData.phone_number}).then(res => {
+                    let {code, mes} = res.data
+                    if (code !== 200) {
+                        showNotify({
+                            type: "danger",
+                            message: mes
+                        })
+                    }
+                })
+            }
+        }
+
         async function get_CityOrCar() {
             // 城市数据
             City().then((res) => {
@@ -235,11 +282,45 @@ export default {
             });
         }
 
+        // 验证金额 是否正确
+        function moneyCheck(e) {
+            let k = 1;
+            let money = 0;
+            for (let i in list) {
+                if (Number(list[i]) > money && money !== 0) {
+                    showNotify({
+                        type: 'danger',
+                        message: `当前金额不能大于第【${i}】次`,
+                    })
+                    break
+                }
+                money = Number(list[i])
+                console.log(list[i])
+                if (e === k) {
+                    break
+                }
+                k += 1
+            }
+        }
+
+        // 价格推荐
+        function recommend_price(CartBrandID) {
+            recommend_priceData({CartBrandID}).then(res => {
+                console.log(res)
+                Price_data.value = res.data.data
+            })
+        }
 
         onMounted(() => {
             get_CityOrCar()
-
+            recommend_price()
         })
+
+        // 向输入框插入价格
+        function pushPrice(index, money) {
+            list[index] = money
+
+        }
 
         // 验证 ================= 开始
         // 手机号码验证 (号段)
@@ -269,6 +350,10 @@ export default {
             selectBrand,
             ...toRefs(upData),
             city,
+            batchUcheck,
+            moneyCheck,
+            Price_data,
+            pushPrice
 
 
         }
@@ -282,5 +367,10 @@ export default {
     bottom: 65px;
     left: 0;
     right: 0;
+}
+
+.Price_tag {
+    width: 100px;
+    height: 30px;
 }
 </style>

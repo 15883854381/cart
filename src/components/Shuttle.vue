@@ -27,7 +27,7 @@
 
 
     <van-popup closeable v-model:show="show" round position="bottom">
-        <div class="closeable" ></div>
+        <div class="closeable"></div>
         <van-tree-select
                 @click-item="SelectedTags"
                 v-model:active-id="activeId"
@@ -46,7 +46,8 @@ export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: "Shuttle",
     emits: ['getSelectTtag'],
-    setup(props,context) {
+    props: ['active'],
+    setup(props, context) {
         let tags = ref(false)
         let Selected_list = reactive([])
         const activeId = ref([]);
@@ -81,18 +82,18 @@ export default {
             let re_tags = activeId.value.findIndex(item => item === e.id)
             activeId.value.pop(re_tags)
             Selected_list.shift(e)
-            context.emit('getSelectTtag',Selected_list)
+            context.emit('getSelectTtag', Selected_list)
         }
 
         // 选中时添加 tags 否则 删除
         function SelectedTags(e) {
             let re_tags = activeId.value.find(item => item === e.id)
             re_tags === undefined ? Selected_list.shift(e) : Selected_list.unshift(e);
-            context.emit('getSelectTtag',Selected_list)
+            context.emit('getSelectTtag', Selected_list)
         }
 
         onMounted(() => {
-            userTags().then(res => {
+            userTags({cart_type: props.active + 1}).then(res => {
                 console.log(res)
                 userTag_items.value = res.data.data
             })
@@ -161,8 +162,9 @@ export default {
   font-size: 14px;
   color: #C8C9D6;
 }
-.closeable{
-    height: 35px;
+
+.closeable {
+  height: 35px;
 }
 
 </style>

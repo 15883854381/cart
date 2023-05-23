@@ -26,7 +26,7 @@ import List_box from "@/components/List_box.vue";
 import list_Business_NewBropdown from "@/components/list_Business_NewBropdown.vue";
 import {useRouter} from "vue-router";
 import {getClueCount, getClueList, SelectCartData} from "@/api/clue";
-import {showLoadingToast} from "vant";
+import {closeToast, showLoadingToast} from "vant";
 
 export default {
 
@@ -48,6 +48,7 @@ export default {
         let timeTrue = null;
         let RefreshTime = 30;
         let oldCartCount = ref(0)
+
 
         // 跳转详情页面
         function toUrl(item) {
@@ -87,13 +88,6 @@ export default {
             })
         }
 
-        // 获取线索总数量
-        function getClueCountFun() {
-            getClueCount().then((e) => {
-                ClueCOunt.value = e.data.data
-            })
-        }
-
         // 监听用是否下拉
         function handleScroll() {
             //变量scrollTop是滚动条滚动时，距离顶部的距离
@@ -121,18 +115,26 @@ export default {
             //滚动条到底部的条件
             if ((Math.ceil(scrollTop + windowHeight) === parseInt(scrollHeight)) && scrollTop !== 0) {
                 console.log('我触底了==1');
+                // alert('我触底了==1')
+
 
                 if (active.value === 0) {
                     // 在此处判断是否为 新车 二手车
                     if (ClueCOunt.value > clueList.value.length) {
                         console.log('新车触底了==2')
                         pageNum.value += 1
+                        showLoadingToast({
+                            message: '加载中...',
+                            forbidClick: true,
+                        });
                         getClueList({pageNum: pageNum.value}).then(res => {
                             let {data, count} = res.data.data
                             ClueCOunt.value = count
                             for (let item in data) {
                                 clueList.value.push(data[item])
                             }
+                            closeToast();
+
                         })
                     }
                 } else {
@@ -145,6 +147,7 @@ export default {
                             for (let item in data) {
                                 oleClue.value.push(data[item])
                             }
+                            closeToast();
                         })
                     }
                 }
@@ -169,7 +172,6 @@ export default {
 
         onMounted(() => {
             getdata()
-            // getClueCountFun()
             window.addEventListener('scroll', handleScroll)
             //     ===== 二手车 =======
             SelectCart()
@@ -190,7 +192,8 @@ export default {
             active,
             loading,
             finished,
-            oleClue
+            oleClue,
+
         };
     },
 };

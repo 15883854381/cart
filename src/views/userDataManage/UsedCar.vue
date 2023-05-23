@@ -34,16 +34,8 @@
                     name="phone_number"
                     label="联系电话"
                     placeholder="请填写联系电话"
+                    @blur="batchUcheck"
                     :rules="[{ required: true,validator:validator, message: '请填写联系电话' }]"
-            />
-            <van-field
-                    v-model="form.province_city"
-                    is-link
-                    readonly
-                    name="province_city"
-                    label="购车地区"
-                    placeholder="点击选择省市区"
-                    @click="data.showArea = true"
             />
             <van-field
                     v-model="form.BrandTitle"
@@ -54,8 +46,18 @@
                     placeholder="购车品牌"
                     @click="data.BrandshowPicker = true"
             />
+            <van-field
+                    v-model="form.province_city"
+                    is-link
+                    readonly
+                    name="province_city"
+                    label="购车地区"
+                    placeholder="点击选择省市区"
+                    @click="data.showArea = true"
+            />
 
-            <shuttle @getSelectTtag="getSelectTtag"></shuttle>
+
+            <shuttle :active="props.active" @getSelectTtag="getSelectTtag"></shuttle>
 
             <div>
                 <van-field required name="sales" label="售卖次数">
@@ -68,11 +70,22 @@
                     </template>
                 </van-field>
                 <template v-for="(item, index) in (Number(data.sales))" :key="item">
-                    <van-field type="digit" :maxlength="4" required v-model="list[index]" :name="'unitPrice_'+index"
-                               :label="`【${index + 1 }】次价`"
-                               :placeholder="`请填第【${index + 1 }】次价格`"
-                               :rules="[{ required: true, message: `请填第【${index + 1 }】次价格` }]"/>
+                    <div style="display: flex;align-items: center;">
+                        <van-field @blur="moneyCheck(item)" type="digit" :maxlength="4" required v-model="list[index]"
+                                   :name="'unitPrice_'+index"
+                                   :label="`【${index + 1 }】次价`"
+                                   :placeholder="`请填第【${index + 1 }】次价格`"
+                                   :rules="[{ required: true, message: `请填第【${index + 1 }】次价格` }]"/>
+                        <template v-if="Price_data !== null">
+                            <van-tag
+                                    @click="pushPrice(index,Price_data['unitPrice_' + (Number(index) + 1)])"
+                                    class="Price_tag" type="primary" size="small">
+                                推荐：{{ Price_data['unitPrice_' + (Number(index) + 1)] }} 元
+                            </van-tag>
+                        </template>
+                    </div>
                 </template>
+
             </div>
 
         </van-cell-group>
@@ -99,13 +112,18 @@
 </template>
 
 <script setup>
-import {reactive} from "vue";
+import {onMounted, reactive, ref, defineProps} from "vue";
 import {useRouter} from "vue-router";
 import cityOrBrand from '@/hooks/tools'
 import shuttle from "@/components/Shuttle.vue";
 import {showNotify} from "vant";
 import {upOldCartData} from "@/api/oldCart";
+import {batchUcheckData} from "@/api/clue";
+import {recommend_priceData} from "@/api/order";
 
+
+let props = defineProps(['active'])
+console.log(props)
 
 const router = useRouter()
 let form = reactive({
@@ -129,6 +147,7 @@ let data = reactive({
     showArea: false,
     BrandshowPicker: false
 })
+let Price_data = ref({})
 
 // 确认城市
 function onConfirm({selectedOptions}) {
@@ -136,6 +155,7 @@ function onConfirm({selectedOptions}) {
     form.cityID = selectedOptions[0].id
     form.province_city = selectedOptions.map(item => item.text).join('/')
     data.showArea = false
+    recommend_price(selectedOptions[0].id)
 }
 
 // 确认品牌
@@ -143,6 +163,7 @@ function queryBrandData({selectedOptions}) {
     form.CartBrandID = selectedOptions[0].id
     form.BrandTitle = selectedOptions[0].name
     data.BrandshowPicker = false
+    recommend_price(selectedOptions[0].id)
 }
 
 // 提交上传数据
@@ -163,6 +184,24 @@ function onSubmit(e) {
             router.replace('/user_data')
         }
     })
+}
+
+/**
+ * 验证手机号码是否存在 和 正确
+ */
+function batchUcheck() {
+    let data = validator(form.phone_number)
+    if (data) {
+        batchUcheckData({phone_number: form.phone_number}).then(res => {
+            let {code, mes} = res.data
+            if (code !== 200) {
+                showNotify({
+                    type: "danger",
+                    message: mes
+                })
+            }
+        })
+    }
 }
 
 const getSelectTtag = e => form.userTags = e // 将标签数据传给 表单
@@ -188,10 +227,52 @@ function priceValidator() {
     return true;
 }
 
+// 验证金额 是否正确
+function moneyCheck(e) {
+    let k = 1;
+    let money = 0;
+    for (let i in list) {
+        if (Number(list[i]) > money && money !== 0) {
+            showNotify({
+                type: 'danger',
+                message: `当前金额不能大于第【${i}】次`,
+            })
+            break
+        }
+        money = Number(list[i])
+        console.log(list[i])
+        if (e === k) {
+            break
+        }
+        k += 1
+    }
+}
+
+
+// 向输入框插入价格
+function pushPrice(index, money) {
+    console.log(list, index)
+    list[index] = money
+
+}
+
+// 价格推荐
+function recommend_price(CartBrandID) {
+    recommend_priceData({CartBrandID}).then(res => {
+        Price_data.value = res.data.data
+    })
+}
+
+onMounted(() => {
+    recommend_price()
+})
 
 </script>
 
 
 <style scoped lang="scss">
-
+.Price_tag {
+  width: 100px;
+  height: 30px;
+}
 </style>

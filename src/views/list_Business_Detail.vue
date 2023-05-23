@@ -1,5 +1,6 @@
 <template>
-    <van-notice-bar mode="closeable">订单交易成功后将展示当前线索的联系方式</van-notice-bar>
+    <van-notice-bar v-if="flatActive" mode="closeable">订单交易成功后将展示当前线索的联系方式
+    </van-notice-bar>
   <!--    <van-cell-group inset>-->
   <!--        <van-cell  title="" title-style="color:red;font-size:18px;font-weight:600;" />-->
   <!--    </van-cell-group>-->
@@ -22,10 +23,6 @@
             <span v-else class="Detail_num">{{ detail_data.Cluephone_number }}</span>
             <span class="Detail_num" style="color: #333333">【{{ detail_data.PhoneBelongingplace }}】</span>
         </div>
-        <!--        <div class="Detail_text_box">-->
-        <!--            <span class="Detail_title">号码归属地：</span>-->
-        <!--            <span class="Detail_num" style="color: #333333" >四川省成都市</span>-->
-        <!--        </div>-->
 
         <div class="user_tags">
             <span class="Detail_title">客户意向：</span>
@@ -45,15 +42,18 @@
         <div class="Detail_buy_btn">
             <van-row gutter="20">
                 <van-col span="12">
-                    <van-button block @click="getBuy(0)" plain :disabled="!residueNum" type="primary">
+                    <!--                    flag == 3  表示 线索已下架-->
+                    <van-button plain block v-if="detail_data.flag===3" disabled type="primary">线索已下架</van-button>
+
+                    <van-button v-else block @click.once="getBuy(0)" plain :disabled="!residueNum" type="primary">
                         {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
                     </van-button>
                 </van-col>
                 <van-col span="12">
-                    <!--                    :disabled="detail_data.count > 0?'fasle':!residueNum"-->
-                    <van-button :disabled="detail_data.count > 0? true:!residueNum" @click="getBuy(1)" block
+                    <van-button v-if="detail_data.flag===3" block disabled type="primary">线索已下架</van-button>
+                    <van-button v-else :disabled="flatActive? true:!residueNum" @click.once="getBuy(1)" block
                                 type="primary">
-                        {{ detail_data.count > 0 ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单' }}
+                        {{ flatActive ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单' }}
                     </van-button>
                 </van-col>
             </van-row>
@@ -124,7 +124,7 @@ import List_box from "@/components/List_box.vue";
 import {getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
 import {closeToast, showLoadingToast, showNotify} from 'vant';
 
-import {onMounted, ref, getCurrentInstance} from "vue";
+import {onMounted, ref, getCurrentInstance, computed} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {logVer} from "@/utils/tool";
@@ -153,6 +153,13 @@ export default {
             {name: '复制链接', icon: 'link'},
             {name: '二维码', icon: 'qrcode'},
         ];
+
+        const flatActive = computed({
+            get: () => {
+                let flatS = [1, 3, 4, 5, 6, 7];
+                return flatS.includes(detail_data.value.flat)
+            }
+        })
 
         //
         function onSelect(option) {
@@ -228,6 +235,7 @@ export default {
                 }
                 detail_data.value = res.data.data[0]
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
+                console.log(residueNum.value)
             })
             getClueList().then((res) => {
                 listData.value = res.data.data.data;
@@ -317,6 +325,7 @@ export default {
             onSelect,
             toUrl,
             getBuy,
+            flatActive
         }
 
     }

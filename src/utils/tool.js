@@ -96,8 +96,7 @@ export async function logVer() {
                 title: '资料审核',
                 message: `${res.data.mes}`
             }).then(() => {
-                console.log('跳转页面')
-                // router.push('/user_data')
+                router.push('/upUserInfo')
             })
             return 3058;
         case 305:

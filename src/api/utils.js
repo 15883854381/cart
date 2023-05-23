@@ -12,8 +12,8 @@ export function CartBand() {
 
 
 // 获取用户标签
-export function userTags() {
-    return axios.post('Ulits/userTags')
+export function userTags(data) {
+    return axios.post('Ulits/userTags', data)
 }
 
 // 验证用户是否登录

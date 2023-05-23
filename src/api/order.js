@@ -24,6 +24,7 @@ export function OrderEditQuery(data) {
         data
     })
 }
+
 // 申述订单
 export function refundReason(data) {
     return axios({
@@ -32,6 +33,7 @@ export function refundReason(data) {
         data
     })
 }
+
 // 查询单个订单是否有效
 export function orderDetail(data) {
     return axios({
@@ -41,4 +43,13 @@ export function orderDetail(data) {
     })
 }
 
+
+// 推荐价格
+export function recommend_priceData(data) {
+    return axios({
+        method: 'post',
+        url: '/Order/recommend_price',
+        data
+    })
+}
 
