@@ -222,7 +222,10 @@ export default {
             let checkNum = Number(upData.sales) - 1;
             let num = 0
             for (let i = 0; i <= checkNum; i++) {
-                console.log(list[i])
+                if (Number(list[i]) <= 0) {
+                    showNotify('金额不能为0')
+                    return false;
+                }
                 if (Number(list[i]) > 2000) {
                     showNotify({type: 'danger', message: '线索金额不能大于 【2000】 元'});
                     updisabled.value = false;
@@ -287,6 +290,10 @@ export default {
             let k = 1;
             let money = 0;
             for (let i in list) {
+                if (Number(list[i]) <= 0) {
+                    showNotify('金额不能为0')
+                    break
+                }
                 if (Number(list[i]) > money && money !== 0) {
                     showNotify({
                         type: 'danger',

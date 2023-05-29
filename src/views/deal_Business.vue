@@ -1,4 +1,22 @@
 <template>
+    <van-swipe class="my-swipe" :autoplay="3000" indicator-color="white">
+        <van-swipe-item>
+            <van-image
+                    src="https://img.zcool.cn/community/01e4745b79fb3ea801218d321115e0.jpg@1280w_1l_2o_100sh.jpg"></van-image>
+        </van-swipe-item>
+        <van-swipe-item>
+            <van-image
+                    src="https://img.zcool.cn/community/0136c65dc04a1da8012163ba304efa.jpg?x-oss-process=image/resize,h_600/format,jpg"></van-image>
+        </van-swipe-item>
+        <van-swipe-item>
+            <van-image
+                    src="https://img.zcool.cn/community/012c3c584cf430a8012060c8f940f6.jpg@1280w_1l_2o_100sh.jpg"></van-image>
+        </van-swipe-item>
+        <van-swipe-item>
+            <van-image
+                    src="https://img.zcool.cn/community/013993585de4e3a801219c7769c197.jpg@2o.jpg"></van-image>
+        </van-swipe-item>
+    </van-swipe>
   <!--成功案例-->
     <van-cell-group>
         <van-cell @click="goItem(item)" :key="item.title" v-for="item in data" is-link>
@@ -47,6 +65,7 @@ export default {
 </script>
 
 <style lang="scss">
+
 
 .text {
   font-size: 15px;

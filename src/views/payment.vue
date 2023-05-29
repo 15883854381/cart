@@ -4,8 +4,9 @@
         <div class="content">
             <div class="box_title box_public">
             <span class="box_title_title"><span
-                    style="color: #1D69A7">{{ item.user_name }}</span>【{{ item.provinceCity }}】<span
-                    style="color:#ff9900">【{{ item.brandname }}】</span></span>
+                    style="color: #1D69A7">{{ item.user_name }}</span>
+                <span v-if="item.provinceCity " >【{{ item.provinceCity }}】</span>
+                <span v-if="item.brandname" style="color:#ff9900">【{{ item.brandname }}】</span></span>
                 <!--                <span class="box_title_time">半小时前</span>-->
             </div>
             <div class="box_title_money">

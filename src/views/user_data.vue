@@ -33,15 +33,17 @@
 
             <div class="user_info_money">
                 <div class="user_padding_box">
-                                        <div class="user_num">{{ UserInfoD.clueCount || 0}}</div>
+                    <div class="user_num">{{ UserInfoD.clueCount || 0 }}</div>
                     <div class="user_text">发布</div>
                 </div>
                 <div class="user_padding_box">
-                                        <div class="user_num" style="color:red;">{{ UserInfoD.orderCount ? `${UserInfoD.orderCount}.00` : '0.00'}}</div>
+                    <div class="user_num" style="color:red;">
+                        {{ UserInfoD.orderCount ? `${UserInfoD.orderCount}.00` : '0.00' }}
+                    </div>
                     <div class="user_text">收益</div>
                 </div>
                 <div class="user_padding_box">
-                                        <div class="user_num">{{UserInfoD.shareCount || 0}}</div>
+                    <div class="user_num">{{ UserInfoD.shareCount || 0 }}</div>
                     <div class="user_text">分享</div>
                 </div>
             </div>
@@ -51,17 +53,17 @@
                     <van-grid-item icon="upgrade" @click="toUrl('/up_Business')" text="上传线索"/>
                     <van-grid-item icon="orders-o" @click="toUrl('/my_Clue')" text="我的订单"/>
                     <van-grid-item icon="coupon-o" @click="toUrl('/UpOrder')" text="我的线索"/>
+                    <van-grid-item icon="balance-o" @click="toUrl('/income')" text="累计收益"/>
                     <van-grid-item icon="share-o" @click="toUrl('/share')" text="我的分享"/>
-                    <van-grid-item icon="edit" to="/upUserInfo" text="审核信息"/>
+                    <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>
                     <van-grid-item icon="service-o" to="/customer" text="联系客服"/>
-                    <van-grid-item icon="friends-o" text="关于我们"/>
                     <van-grid-item icon="replay" @click="clearData" text="退出登录"/>
                 </van-grid>
             </div>
-<!--            <div class="logout">-->
-<!--                <van-button @click="clearData" color="linear-gradient(to right, #ff6034, #ee0a24)" block>退出登录-->
-<!--                </van-button>-->
-<!--            </div>-->
+            <!--            <div class="logout">-->
+            <!--                <van-button @click="clearData" color="linear-gradient(to right, #ff6034, #ee0a24)" block>退出登录-->
+            <!--                </van-button>-->
+            <!--            </div>-->
 
 
             <!-- 充值盒子 -->
@@ -177,11 +179,12 @@
 <script>
 import {onMounted, reactive, ref, toRaw} from "vue";
 import {getQueryString, verification} from "../utils/tool";
-import {showDialog, showNotify} from "vant";
+import {showConfirmDialog, showDialog, showNotify} from "vant";
 import {useRouter} from "vue-router";
 import {getUserInfo, getcode, sendcode, UserInfoData} from "../api/user_data";
 import {logVer} from "@/utils/tool";
 import {appid, wwwUrl} from "@/utils/constant";
+import {loginVerify} from "@/api/utils";
 
 export default {
     setup() {
@@ -247,7 +250,7 @@ export default {
                         userInfo.headimgurl = headimgurl;
                         userInfo.phone_number = phone_number;
                         shows.value = false;
-
+                        UserInfo()// 登录成功后获取用户基本信息 收益 发布数量
                         return true;
                     case 201:
                         location.href =
@@ -359,23 +362,70 @@ export default {
 
         // 上传线索做跳转前 进行验证
         async function toUrl(url) {
-            let state = await logVer()
-            if (url === '/up_Business' && state === 3061) {
-                showNotify("你还不具备上传条件，若需上传请联系客服");
-                return false
+            let res = await PermissionValidation(url);
+            if (!res) {
+                return false;
             }
+            await router.push(url)
 
-            switch (state) {
-                case 3058:
-                    return false
-                case 3059:
-                    shows.value = true
-                    return false
-                default:
-                    await router.push(url)
-            }
-            console.log(state)
+            // let state = await logVer()
+            // if (url === '/up_Business' && state === 3061) {
+            //     showNotify("你还不具备上传条件，若需上传请联系客服");
+            //     return false
+            // }
+            //
+            // switch (state) {
+            //     case 3058:
+            //         return false
+            //     case 3059:
+            //         shows.value = true
+            //         return false
+            //     default:
+            //         await router.push(url)
+            // }
+            // console.log(state)
         }
+
+        // 权限验证
+        async function PermissionValidation(url) {
+            let res = await loginVerify()
+            let {mes, code} = res.data
+            if (code !== 200 && code !== 309) {
+                switch (code) {
+                    case 305:
+                        shows.value = true
+                        return false
+                    case 401:
+                    case 306:
+                    case 307:
+                        showConfirmDialog({
+                            title: '资料审核',
+                            message: mes,
+                        }).then(() => {
+                            router.push('/upUserInfo')
+                        })
+                        return false;
+                    case 308:
+                        showNotify({
+                            type: 'primary',
+                            message: mes
+                        })
+
+
+                        return false;
+                    case 400:
+                        if ('/up_Business' === url) {
+                            showNotify(mes)
+                            return false;
+                        } else {
+                            return true;
+                        }
+                }
+            } else {
+                return true;
+            }
+        }
+
 
         function UserInfo() {
             UserInfoData().then(res => {
@@ -454,7 +504,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 [v-cloak] {
   display: none !important;
 }
@@ -606,9 +656,8 @@ export default {
 }
 
 .margin_box {
-  background-color: #F6F7F8;
+  //background-color: #F6F7F8;
   height: 90vh;
-  //background-color: red;
 }
 
 .logout {

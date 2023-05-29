@@ -16,9 +16,10 @@
         <!--标题-->
         <div class="content">
             <div class="box_title box_public">
-            <span class="box_title_title"><span
-                    style="color: #1D69A7">{{ dataItem.user_name }}</span>【{{ dataItem.provinceCity }}】<span
-                    style="color:#ff9900">【{{ dataItem.brandname }}】</span></span>
+            <span class="box_title_title">
+                <span style="color: #1D69A7">{{ dataItem.user_name }}</span>
+                <span v-if="dataItem.provinceCity">【{{ dataItem.provinceCity }}】</span>
+                <span v-if="dataItem.brandname" style="color:#ff9900">【{{ dataItem.brandname }}】</span></span>
                 <!--                <span class="box_title_time">半小时前</span>-->
             </div>
             <div class="box_title_money">
@@ -35,12 +36,16 @@
             <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>
             <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;
             </van-button>
-            <van-button type="success" @click.stop="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;
+            <van-button type="success" :disabled="dataItem.callPhoneNumber<=0" @click.stop="callPhone(dataItem)" round
+                        size="mini">&nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次
             </van-button>
         </div>
 
         <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3">
-            <van-button type="success" @click.stop="callPhone(dataItem)" round size="mini">&nbsp;拨打电话&nbsp;
+            <!--            {{ dataItem.callPhoneNumber }}-->
+            <van-button :disabled="dataItem.callPhoneNumber<=0" type="success" @click.stop="callPhone(dataItem)" round
+                        size="mini">
+                &nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次
             </van-button>
         </div>
     </div>
@@ -61,10 +66,11 @@ export default {
 
             showDialog({
                 title: '来电提醒',
-                message: '电话接通中，【 请注意来电提醒 】，若长时间为接听到电话，请重新拨打或联系客服解决',
+                message: '电话接通中，【 请注意来电提醒 】，请勿重复拨打。若2分钟未接听到电话，请重新拨打或联系客服解决',
                 confirmButtonText: '立即拨打',
                 closeOnClickOverlay: true
             }).then(() => {
+
                 CallingPhone({
                     clue_id: e.clue_id,
                     out_trade_no: e.out_trade_no,
@@ -77,6 +83,7 @@ export default {
                         })
                         return false;
                     }
+                    items.callPhoneNumber -= 1
                 })
             });
         }
@@ -139,6 +146,7 @@ export default {
                     })
                     items.flat = 1
                 })
+
             })
         }
 

@@ -1,4 +1,4 @@
-import {showNotify} from "vant";
+import {showDialog, showNotify} from "vant";
 import {loginVerify} from "@/api/utils";
 import {showConfirmDialog} from 'vant';
 import router from "@/router";
@@ -91,13 +91,23 @@ export async function logVer() {
         case 401:
         case 306:
         case 307:
-        case 308:
             showConfirmDialog({
                 title: '资料审核',
                 message: `${res.data.mes}`
             }).then(() => {
                 router.push('/upUserInfo')
             })
+            return 3058;
+        case 308:
+            // showDialog({
+            //     message: res.data.mes,
+            // }).then(() => {
+            //     // on close
+            // });
+            // showNotify({
+            //     type: "primary",
+            //     message: res.data.mes
+            // })
             return 3058;
         case 305:
         case 304:

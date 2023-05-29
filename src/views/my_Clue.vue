@@ -1,7 +1,7 @@
 <template>
     <van-notice-bar v-if="dataTable.length>0" mode="closeable">联系方式将在订单交易成功后显示</van-notice-bar>
 
-    <Orderlist @click="tourl(item)" v-for="item in dataTable" :key="item" :item="item"></Orderlist>
+    <Orderlist @click.stop="tourl(item)" v-for="item in dataTable" :key="item" :item="item"></Orderlist>
 </template>
 
 <script>

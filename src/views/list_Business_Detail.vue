@@ -14,6 +14,11 @@
         <div class="Detail_text_box">
             <span class="Detail_title">联系人：</span>
             <span class="Detail_name">{{ detail_data.user_name }}</span>
+            <span style="color: #333;float: right;margin-bottom: 2px" @click="Showshare" class="Detail_name">
+                        <van-button icon="share-o" size="mini" type="primary">去分享</van-button>
+                <!--<van-icon size="18" name="share-o"/>-->
+                    </span>
+
         </div>
 
         <div class="Detail_text_box">
@@ -45,13 +50,13 @@
                     <!--                    flag == 3  表示 线索已下架-->
                     <van-button plain block v-if="detail_data.flag===3" disabled type="primary">线索已下架</van-button>
 
-                    <van-button v-else block @click.once="getBuy(0)" plain :disabled="!residueNum" type="primary">
+                    <van-button v-else block @click="getBuy(0)" plain :disabled="!residueNum" type="primary">
                         {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
                     </van-button>
                 </van-col>
                 <van-col span="12">
                     <van-button v-if="detail_data.flag===3" block disabled type="primary">线索已下架</van-button>
-                    <van-button v-else :disabled="flatActive? true:!residueNum" @click.once="getBuy(1)" block
+                    <van-button v-else :disabled="flatActive? true:!residueNum" @click="getBuy(1)" block
                                 type="primary">
                         {{ flatActive ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单' }}
                     </van-button>
@@ -65,24 +70,24 @@
         </div>
         <div class="Detail_text_box">
             <van-row>
-                <van-col span="8">
+                <van-col span="12">
                     <span class="Detail_title">已发布：</span>
                     <span style="color: #333" class="Detail_name">{{ detail_data.upClueNum }} 条</span>
                 </van-col>
-                <van-col span="8">
+                <van-col span="12">
                     <span class="Detail_title">好评率：</span>
                     <span style="color: #333" class="Detail_name">80%</span>
                 </van-col>
-                <van-col span="8">
-                    <span class="Detail_title">分享：</span>
-                    <span style="color: #333" @click="Showshare" class="Detail_name">
-                        <van-icon size="18" name="share-o"/>
-                    </span>
-                </van-col>
+                <!--                <van-col span="8">-->
+                <!--                    <span class="Detail_title">分享：</span>-->
+                <!--                    <span style="color: #333" @click="Showshare" class="Detail_name">-->
+                <!--                        <van-icon size="18" name="share-o"/>-->
+                <!--                    </span>-->
+                <!--                </van-col>-->
             </van-row>
         </div>
 
-        <div v-if="BuyNumData.length">
+        <div v-if="BuyNumData">
             <table border="1" class="Detail_table">
                 <tr>
                     <th>购买记录</th>
@@ -114,6 +119,7 @@
             :options="options"
             @select="onSelect"
     />
+    <shareArrowhead v-if="Cshow" @click="Cshow=false"></shareArrowhead>
 
 
 </template>
@@ -121,14 +127,15 @@
 <script>
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
+import shareArrowhead from '@/components/share_arrowhead.vue'
 import {getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
-import {closeToast, showLoadingToast, showNotify} from 'vant';
+import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
+import dayjs from 'dayjs'
 
 import {onMounted, ref, getCurrentInstance, computed} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
-import {logVer} from "@/utils/tool";
-import {getUserId, shareClue} from "@/api/utils";
+import {getUserId, loginVerify, shareClue} from "@/api/utils";
 import {CeatedOrder} from "@/api/order";
 import wx from 'weixin-js-sdk'
 
@@ -136,7 +143,8 @@ export default {
     name: "list_Business_Detail",
     components: {
         List_box,
-        line_text
+        line_text,
+        shareArrowhead
     },
 
     setup() {
@@ -148,10 +156,12 @@ export default {
         let listData = ref([]);
         let showShare = ref(false);
         let BuyNumData = ref([]);
+        let UserId = ref('')
+        let Cshow = ref(false)
         const options = [
             {name: '微信', icon: 'wechat'},
             {name: '复制链接', icon: 'link'},
-            {name: '二维码', icon: 'qrcode'},
+            // {name: '二维码', icon: 'qrcode'},
         ];
 
         const flatActive = computed({
@@ -161,58 +171,62 @@ export default {
             }
         })
 
+
+        // vue调用微信的自定义分享
+        function getShareInfo() {
+            let time = new dayjs().format('YYYY-MM-DD HH:mm:ss');
+            let save = {
+                url: location.href.split('#')[0] // 只需要传当前页面地址
+            };
+            shareClue(save).then(res => {
+                let {data, code} = res.data;
+                if (code !== 200) {
+                    return false;
+                }
+                wx.config({
+                    debug: false,
+                    appId: data.appId,  // appID 公众号的唯一标识
+                    timestamp: data.timestamp, // 生成签名的时间戳
+                    nonceStr: data.noncestr, //  生成签名的随机串
+                    signature: data.signature, // 生成的签名
+                    jsApiList: ['onMenuShareAppMessage']
+                });
+
+                wx.ready(() => {
+                    let shareData = {
+                        title: `${detail_data.value.provinceCity ? `【${detail_data.value.provinceCity}】` : ''}${detail_data.value.brandname ? `【${detail_data.value.brandname}】` : ''}线索`,
+                        desc: `${detail_data.value.user_name}有购买意向。    ${time}`,
+                        link: location.href + UserId.value, // 分享后的地址
+                        imgUrl: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM506rD0reCQywDvDDFOIWsRaaqVcLFrSJ9BpH05l1vhJg/0',
+                    };
+                    //点击要去分享
+                    wx.onMenuShareAppMessage(shareData);
+                    // wx.updateTimelineShareData(shareData);
+                });
+            });
+        }
+
+        onMounted(() => {
+            console.log(location.href)
+
+        })
+
+
         //
         function onSelect(option) {
 
             switch (option.name) {
                 case '微信':
-                    shareClue().then(res => {
-                        let {data, code} = res.data
-                        wx.config({
-                            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-                            appId: data.appId, // 必填，公众号的唯一标识
-                            timestamp: data.timestamp, // 必填，生成签名的时间戳
-                            nonceStr: data.noncestr, // 必填，生成签名的随机串
-                            signature: data.signature,// 必填，签名
-                            jsApiList: [
-                                'updateAppMessageShareData',
-                                'updateTimelineShareData',
-                                'checkJsApi',
-                                'onMenuShareTimeline',
-                                'onMenuShareAppMessage', //分享给微信朋友
-                                'showOptionMenu']// 必填，需要使用的JS接口列表
-                        })
-
-                        wx.ready(function () {   //需在用户可能点击分享按钮前就先调用
-                            wx.updateAppMessageShareData({
-                                title: '1', // 分享标题
-                                desc: '1', // 分享描述
-                                link: encodeURIComponent('http://h.199909.xyz'), // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-                                success: function () {
-                                    // 设置成功
-                                }
-                            })
-                        });
-                        wx.error(function (e) {
-                            console.log(e)
-                        })
-
-                    })
+                    Cshow.value = true
                     break
                 case '复制链接':
-                    getUserId().then(res => {
-                        let {data, code} = res.data
-                        let location = window.location.href
-                        if (code === 200) {
-                            location = window.location.href + '&userid=' + data.id
-                        }
-                        proxy.$copyText(location).then(() => {
-                            showNotify({
-                                type: 'success',
-                                message: '复制成功'
-                            })
+                    proxy.$copyText(window.location.href + UserId.value).then(() => {
+                        showNotify({
+                            type: 'success',
+                            message: '复制成功'
                         })
                     })
+
                     break
                 case '二维码':
                     break
@@ -224,18 +238,31 @@ export default {
             showShare.value = true
         }
 
+        // 用户ID
+        function getUserIdBtn() {
+            getUserId().then(res => {
+                let {data, code} = res.data
+                if (code === 200) {
+                    UserId.value = '&userid=' + data.id
+                } else {
+                    UserId.value = ''
+                }
+            })
+        }
+
 
         // 初始化页面数据
-        function getDetail(clueid) {
+        function getDetail(clueid, cart_type) {
             let clue_id = clueid || route.query.clue_id;
-            let type = route.query.type
+            let type = cart_type || route.query.type
             getClueDetail({clue_id, type}).then((res) => {
                 if (res.data.code !== 200 || res.data?.code === undefined) {
                     return false;
                 }
                 detail_data.value = res.data.data[0]
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
-                console.log(residueNum.value)
+                getUserIdBtn();
+                getShareInfo()
             })
             getClueList().then((res) => {
                 listData.value = res.data.data.data;
@@ -249,26 +276,23 @@ export default {
                 message: '加载中...',
                 forbidClick: true,
             });
-            getDetail(item.clue_id)
+            getDetail(item.clue_id, item.cart_type)
         }
 
         // 获取购买金额
         async function getBuy(buytype) {
-
-            let state = await logVer();
-            switch (state) {
-                case 3060:
-                    showNotify("你还不具备购买条件，若需购买请联系客服")
-                    return false
-                case 3058:
-                    return false
-                case 3059:
-                    return false
+            let res = PermissionValidation()
+            if (!res) {
+                return false;
             }
 
             let clue_id = route.query.clue_id
             let type = route.query.type
 
+            showLoadingToast({
+                message: '订单生成中...',
+                forbidClick: true,
+            });
             // 创建订单并存在数据库
             CeatedOrder({clue_id, type, buytype}).then((res) => {
                 let data = res.data
@@ -286,9 +310,55 @@ export default {
                         message: data.mes
                     })
                 }
+                closeToast();
             })
-            //     成功后执行的方法
         }
+
+
+        // 权限验证
+        async function PermissionValidation() {
+            let res = await loginVerify()
+            let {data, mes, code} = res.data
+            if (code !== 200 && code !== 400) {
+                switch (code) {
+                    case 305:
+                        showConfirmDialog({
+                            title: '登录提醒',
+                            message:
+                                '您还未登录/注册，请先去登录【登录可查看更多】',
+                        }).then(() => {
+                            router.push('/user_data')
+                        })
+                        return false
+                    case 401:
+                    case 306:
+                    case 307:
+                        showConfirmDialog({
+                            title: '资料审核',
+                            message: mes
+                        }).then(() => {
+                            router.push('/upUserInfo')
+                        })
+                        return false;
+                    case 308:
+                        // showNotify(mes)
+                        // showConfirmDialog({
+                        //     title: '资料审核',
+                        //     message: mes
+                        // }).then(() => {
+                        //     router.push('/upUserInfo')
+                        // })
+                        return false;
+                    case 309:
+                        console.log(code)
+                        showNotify(mes)
+                        return false;
+                }
+            } else {
+                return true;
+            }
+        }
+
 
         // 分享线索
         function getUserid() {
@@ -302,16 +372,19 @@ export default {
         function SearchClueBuyNUm() {
             let clue_id = route.query.clue_id;
             SearchClueBuyNUmData({clue_id}).then(res => {
-                console.log(res)
-
-                BuyNumData.value = res.data.data
+                let {data} = res.data
+                if (data !== []) {
+                    BuyNumData.value = res.data.data
+                }
             })
         }
 
         onMounted(() => {
+            PermissionValidation()
             getDetail();
             getUserid()
             SearchClueBuyNUm()
+
         })
 
         return {
@@ -325,7 +398,8 @@ export default {
             onSelect,
             toUrl,
             getBuy,
-            flatActive
+            flatActive,
+            Cshow
         }
 
     }
@@ -463,4 +537,5 @@ export default {
     margin-right: 5px;
   }
 }
+
 </style>

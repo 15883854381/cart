@@ -55,7 +55,7 @@ export default {
             router.push({
                 path: "/list_Business_Detail",
                 query: {
-                    type: active.value ? '2' : '1',
+                    type: item.cart_type,
                     clue_id: item.clue_id,
                 }
             });
@@ -141,7 +141,7 @@ export default {
                     console.log('二手车')
                     if (oldCartCount.value > oleClue.value.length) {
                         oldPageNum.value += 1
-                        SelectCartData({PageNum: oldPageNum}).then(res => {
+                        SelectCartData({PageNum: oldPageNum.value}).then(res => {
                             let {data, count} = res.data.data
                             oldCartCount.value = count
                             for (let item in data) {
@@ -174,7 +174,7 @@ export default {
             getdata()
             window.addEventListener('scroll', handleScroll)
             //     ===== 二手车 =======
-            SelectCart()
+            SelectCart({PageNum: oldPageNum.value})
         })
 
         onBeforeUnmount(() => {

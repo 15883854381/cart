@@ -49,7 +49,8 @@ export default {
 
 <style scoped>
 .content_box {
-    padding: 10px;
+    margin: 10px;
+
 }
 
 .content {

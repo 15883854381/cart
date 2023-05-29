@@ -16,14 +16,14 @@ export function userTags(data) {
     return axios.post('Ulits/userTags', data)
 }
 
-// 验证用户是否登录
+// 验证用户是否登录 和权限验证
 export function loginVerify() {
     return axios.post('Ulits/loginVerify')
 }
 
 // 分享线索
-export function shareClue() {
-    return axios.post('Clue/shareClue')
+export function shareClue(data) {
+    return axios.post('Clue/shareClue',data)
 }
 
 // 分享线索

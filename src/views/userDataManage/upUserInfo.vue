@@ -1,5 +1,5 @@
 <template>
-    <van-form @submit="onSubmit" v-if="state==='2' || state==='0'">
+    <van-form @submit="onSubmit" v-if="state===2">
         <van-cell-group inset>
             <van-field name="type" label="类型">
                 <template #input>
@@ -32,10 +32,10 @@
                         placeholder="请填写公司名称"
                         :rules="[{ required: true, message: '请填写公司名称' }]"
                 />
-                <van-field name="fileList" label="文件上传"
+                <van-field name="fileList" label="营业执照"
                            :rules="[{ required: true, message: '请填写上传营业执照' }]">
                     <template #input>
-                        <van-uploader v-model="form.fileList" multiple :max-count="2"/>
+                        <van-uploader v-model="form.fileList" multiple :max-count="1"/>
                     </template>
                 </van-field>
             </div>
@@ -46,13 +46,13 @@
             </van-button>
         </div>
     </van-form>
-    <van-empty v-else :description="state=='1'?'审核成功':'资料还在审核中...'"/>
+    <van-empty v-else :description="state===1?'审核成功':'资料还在审核中...'"/>
 </template>
 <script setup>
 import {reactive, ref} from "vue";
 import {getStateData, UpUserInfo} from "@/api/upUserInfo";
 import router from "@/router";
-import {showNotify} from "vant";
+import {closeToast, showLoadingToast, showNotify, showSuccessToast} from "vant";
 
 let form = reactive({
     companyName: '',
@@ -63,7 +63,7 @@ let form = reactive({
 });
 let userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
-let state = ref('0')
+let state = ref(0)
 
 // 判断是  个人认证 或 公司认证
 function getType(e) {
@@ -76,21 +76,35 @@ function onSubmit(itemData) {
     for (let k in itemData) {
         if (k === 'fileList') {
             for (let i in itemData[k]) {
+                if (itemData[k][i].file.size / 1024 > 1800) {
+                    showNotify("图片过大,请重新上传")
+                    return false;
+                }
                 formData.append(`file[]`, itemData[k][i].file);
             }
             continue
         }
         formData.append(k, itemData[k]);
     }
+
+    const toast2 = showLoadingToast({
+        message: '加载中...',
+        forbidClick: true,
+        duration: 0
+    });
     UpUserInfo(formData).then(res => {
         let {code, mes} = res.data
-        if (code === 200) {
-            router.replace('/user_data')
-        }
         showNotify({
             type: code === 200 ? 'success' : 'danger',
             message: mes
         })
+        toast2.close()
+        router.replace('/user_data')
+        // if (code === 200) {
+        //     router.replace('/user_data')
+        // }
+        // closeToast();
+
     })
 }
 
@@ -98,9 +112,11 @@ function getState() {
     getStateData().then(res => {
         let {code, data} = res.data
         if (code === 200) {
-            state.value = data.flag
+            state.value = data.flag;
+        } else {
+            state.value = 2
         }
-        console.log(data)
+        console.log(state)
     })
 }
 

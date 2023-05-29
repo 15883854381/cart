@@ -97,6 +97,10 @@ const routes = [
         path: "/shareUserList",
         component: () => import("../views/shareUserList.vue"),
         meta: {title: "用户上传的线索"},
+    }, {
+        path: "/income",
+        component: () => import("../views/income.vue"),
+        meta: {title: "累计收益"},
     }
 ];
 
@@ -109,14 +113,6 @@ const router = createRouter({
 //路由守卫
 router.beforeEach(async (to, from, next) => {
 
-    let urlData = ['/up_Business', '/my_Clue', '/UpOrder'];
-    if (urlData.includes(to.path)) {
-        let res = await loginVerify();
-        if (res.data.code !== 200) {
-            await router.replace('/user_data')
-            return false;
-        }
-    }
     document.title = "汽车线索互助联盟-" + to.matched[0].meta.title;
     next();
     // /up_Business

@@ -53,3 +53,11 @@ export function recommend_priceData(data) {
     })
 }
 
+// 订单的累计收益
+export function incomeDetailData() {
+    return axios({
+        method: 'post',
+        url: '/Order/incomeDetail',
+    })
+}
+
