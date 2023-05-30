@@ -89,7 +89,8 @@ function toUrl(e) {
     router.replace({
         path: 'list_Business_Detail',
         query: {
-            id: e.id
+            clue_id: e.clue_id,
+            type: e.cart_type,
         }
     })
 }

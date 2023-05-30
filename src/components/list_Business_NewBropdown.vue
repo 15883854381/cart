@@ -166,7 +166,7 @@ export default {
         // =============  获取数据 结束================
 
 
-        let Brandlist = ref([]);
+        // let Brandlist = ref([]);
         let newBrand = ref([]);
         const loading = ref(false);
         const finished = ref(false);
@@ -177,9 +177,9 @@ export default {
                 city.value = res.data.data
             })
             // 汽车品牌数据
-            CartBand().then((res) => {
-                Brandlist.value = res.data.data
-            });
+            // CartBand().then((res) => {
+            //     Brandlist.value = res.data.data
+            // });
         }
 
         onMounted(() => {

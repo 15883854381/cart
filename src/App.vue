@@ -57,6 +57,7 @@ export default {
 @import "//at.alicdn.com/t/c/font_4027755_ethzpxfw6ju.css";
 
 .view_content {
-    margin-bottom: 60px
+    margin-bottom: 60px;
+    overflow: hidden;
 }
 </style>

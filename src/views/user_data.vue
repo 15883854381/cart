@@ -228,6 +228,7 @@ export default {
                 userInfo.userid = localStorage.getItem('userid')
             }
 
+
             // 向后端发送请求 验证 code 并跳转到 头像授权页面
             getcode(userInfo).then((res) => {
                 let {code} = res.data;
@@ -235,15 +236,11 @@ export default {
                 switch (code) {
                     case 200:
                         // 如果用户在登录时，查询数据库是否存在，存在就直接从数据库取出
-                        // userInfo = { userInfo, ...res.data.data };
-                        // eslint-disable-next-line no-case-declarations
                         let {token} = res.data.data;
                         localStorage.setItem("token", token); // 取出登录 token
                         localStorage.setItem("userInfo", JSON.stringify(toRaw(res.data.data))
                         ); // 登录成功后 将数据存放在 localStorage
-                        // router.go(0)
-                        console.log(res.data.data);
-                        // eslint-disable-next-line no-case-declarations
+
                         let {nickname, balance, headimgurl, phone_number} = res.data.data;
                         userInfo.nickName = nickname;
                         userInfo.balance = balance;
@@ -326,6 +323,9 @@ export default {
                 userInfo.phone_number = phone_number;
             } else {
                 userData = userInfo
+            }
+            if (localStorage.getItem('userid')) {
+                userData.userid = localStorage.getItem('userid')
             }
 
             let weixinCode = getQueryString('code');
@@ -444,7 +444,6 @@ export default {
             if (!weixinCode) {
                 setTimeout(async () => {
                     let resCOde = await logVer();
-                    console.log(resCOde)
                     switch (resCOde) {
                         case 3058:
                             return false
@@ -452,10 +451,6 @@ export default {
                             shows.value = true
                             return false
                     }
-                    console.log(resCOde)
-                    // shows.value = !([305, 304] in resCOde.data.code);
-
-                    console.log(shows.value)
                 }, 200)
             }
 
@@ -482,7 +477,6 @@ export default {
                 // on close
             });
         }
-
 
         return {
             confirmBtn,

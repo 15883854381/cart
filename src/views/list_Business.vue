@@ -1,19 +1,25 @@
 <template>
   <!--    <van-search placeholder="请输入搜索关键词"/>-->
 
-    <van-tabs v-model:active="active">
+    <van-tabs v-model:active="active" @click-tab="onClickTab">
         <van-tab title="新车(线索)">
             <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
-
-            <div class="business_box">
-                <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item" :key="item.clue_id"></List_box>
+            <div class="margin_business_box" @scroll="getScode">
+                <div class="business_box">
+                    <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item"
+                              :key="item.clue_id"></List_box>
+                </div>
             </div>
         </van-tab>
         <van-tab title="二手车(线索)">
             <list_Business_NewBropdown @BropdownData="OldBropdownData"></list_Business_NewBropdown>
-            <div class="business_box">
-                <List_box :key="item.clue_id" :Cluedata="item" v-for="item in oleClue" @click="toUrl(item)"></List_box>
+            <div class="margin_business_box" id="wrapper" @scroll="getScode">
+                <div class="business_box">
+                    <List_box :key="item.clue_id" :Cluedata="item" v-for="item in oleClue"
+                              @click="toUrl(item)"></List_box>
+                </div>
             </div>
+
         </van-tab>
     </van-tabs>
 
@@ -25,8 +31,9 @@ import {onBeforeUnmount, onMounted, ref} from 'vue';
 import List_box from "@/components/List_box.vue";
 import list_Business_NewBropdown from "@/components/list_Business_NewBropdown.vue";
 import {useRouter} from "vue-router";
-import {getClueCount, getClueList, SelectCartData} from "@/api/clue";
+import {getClueList, SelectCartData} from "@/api/clue";
 import {closeToast, showLoadingToast} from "vant";
+// import JRoll from 'jroll-lite'
 
 export default {
 
@@ -88,73 +95,6 @@ export default {
             })
         }
 
-        // 监听用是否下拉
-        function handleScroll() {
-            //变量scrollTop是滚动条滚动时，距离顶部的距离
-            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            //变量windowHeight是可视区的高度
-            let windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
-            //变量scrollHeight是滚动条的总高度
-            let scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
-            // 监听用户是否滚动界面
-            if (timeTrue !== null) {
-                clearInterval(timeTrue)
-            }
-            console.log(RefreshTime)
-            if (RefreshTime !== 0) {
-                timeTrue = setInterval(() => {
-                    showLoadingToast({
-                        message: '更新数据中...',
-                        forbidClick: true,
-                    });
-                }, RefreshTime * 1000)
-            } else {
-                clearInterval(timeTrue)
-            }
-
-            //滚动条到底部的条件
-            if ((Math.ceil(scrollTop + windowHeight) === parseInt(scrollHeight)) && scrollTop !== 0) {
-                console.log('我触底了==1');
-                // alert('我触底了==1')
-
-
-                if (active.value === 0) {
-                    // 在此处判断是否为 新车 二手车
-                    if (ClueCOunt.value > clueList.value.length) {
-                        console.log('新车触底了==2')
-                        pageNum.value += 1
-                        showLoadingToast({
-                            message: '加载中...',
-                            forbidClick: true,
-                        });
-                        getClueList({pageNum: pageNum.value}).then(res => {
-                            let {data, count} = res.data.data
-                            ClueCOunt.value = count
-                            for (let item in data) {
-                                clueList.value.push(data[item])
-                            }
-                            closeToast();
-
-                        })
-                    }
-                } else {
-                    console.log('二手车')
-                    if (oldCartCount.value > oleClue.value.length) {
-                        oldPageNum.value += 1
-                        SelectCartData({PageNum: oldPageNum.value}).then(res => {
-                            let {data, count} = res.data.data
-                            oldCartCount.value = count
-                            for (let item in data) {
-                                oleClue.value.push(data[item])
-                            }
-                            closeToast();
-                        })
-                    }
-                }
-
-            }
-        }
-
 
         // =============== 二手车 ===================
 
@@ -169,17 +109,74 @@ export default {
             })
         }
 
+        function getScode(e) {
+            let scrollTop = e.target.scrollTop
+            let windowHeight = e.target.clientHeight
+            let scrollHeight = e.target.scrollHeight
+            if (Math.ceil(scrollTop + windowHeight) >= parseInt(scrollHeight)) {
+                if (active.value === 0) {
+                    if (ClueCOunt.value > clueList.value.length) {
+
+                        pageNum.value += 1
+                        showLoadingToast({
+                            message: '加载中...',
+                            forbidClick: true,
+                        });
+                        getClueList({pageNum: pageNum.value}).then(res => {
+                            let {data, count} = res.data.data
+                            ClueCOunt.value = count
+                            for (let item in data) {
+                                clueList.value.push(data[item])
+                            }
+                            closeToast();
+                        })
+                    }
+                } else {
+                    if (oldCartCount.value > oleClue.value.length) {
+                        oldPageNum.value += 1
+                        showLoadingToast({
+                            message: '加载中...',
+                            forbidClick: true,
+                        });
+                        SelectCartData({PageNum: oldPageNum.value}).then(res => {
+                            let {data, count} = res.data.data
+                            oldCartCount.value = count
+                            for (let item in data) {
+                                oleClue.value.push(data[item])
+                            }
+                            closeToast();
+                        })
+                    }
+                }
+
+            }
+        }
+
+        async function onClickTab(e) {
+
+            if (e.name === 1) {
+                if (!oleClue.value) {
+                    showLoadingToast({
+                        message: '加载中...',
+                        forbidClick: true,
+                    });
+                    await SelectCart({PageNum: oldPageNum.value})
+                    closeToast();
+                }
+
+            }
+        }
+
 
         onMounted(() => {
             getdata()
-            window.addEventListener('scroll', handleScroll)
+
             //     ===== 二手车 =======
-            SelectCart({PageNum: oldPageNum.value})
+
         })
 
         onBeforeUnmount(() => {
             clearTimeout(timeTrue)
-            window.removeEventListener('scroll', handleScroll)
         });
 
 
@@ -193,6 +190,8 @@ export default {
             loading,
             finished,
             oleClue,
+            getScode,
+            onClickTab
 
         };
     },
@@ -216,6 +215,23 @@ export default {
 }
 
 .business_box {
-  margin-bottom: 50px;
+  //margin-bottom: 50px;
+}
+
+.margin_box {
+  //display: flex;
+  //flex-direction: column;
+}
+
+.margin_business_box_old {
+  //border: 1px solid;
+  height: calc(100vh - 48px - 38px - 55px);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.margin_business_box {
+  height: calc(100vh - 48px - 38px - 55px);
+  overflow: auto;
 }
 </style>
