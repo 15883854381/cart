@@ -2,7 +2,7 @@ import axios from "axios";
 
 const service = axios.create({
     timeout: 5 * 10000, // 设置统一的超时时长 s
-    baseURL: process.env.NODE_ENV === "production" ? `https://3226qg7485.zicp.fun` : "http://h.199909.xyz/",  // 线上 or 开发
+    baseURL: process.env.NODE_ENV === "production" ? `http://s.199909.xyz/` : "http://h.199909.xyz/",  // 线上 or 开发
 
     headers: {
         get: {

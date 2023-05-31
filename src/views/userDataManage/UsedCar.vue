@@ -72,7 +72,7 @@
                 <template v-for="(item, index) in (Number(data.sales))" :key="item">
                     <div style="display: flex;align-items: center;">
                         <van-field @blur="moneyCheck(item)" type="digit" :maxlength="4" required v-model="list[index]"
-                                   :name="'unitPrice_'+index"
+                                   :name="'unitPrice_'+ (index + 1) "
                                    :label="`【${index + 1 }】次价`"
                                    :placeholder="`请填第【${index + 1 }】次价格`"
                                    :rules="[{ required: true, message: `请填第【${index + 1 }】次价格` }]"/>
@@ -172,6 +172,7 @@ function onSubmit(e) {
         return false;
     }
     let {CartBrandID, provinceID, cityID, userTags} = form
+
     let updata = {...e, CartBrandID, provinceID, cityID, userTags}
     console.log(updata)
     upOldCartData(updata).then(res => {
