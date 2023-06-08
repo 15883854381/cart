@@ -8,7 +8,7 @@
                 <template #value>
                     <span class="title_sub" :style="{color: item.flag ===1?'#42b983':'#D55324'}">
                     {{
-                        item.flag === 1 ? '审核通过' : item.flag === 2 ? '审核中' : '无效线索'
+                        item.flag === 1 ? '审核通过' : item.flag === 2 ? '审核中' : item.flag === 4 ? '待上线' : '无效线索'
                         }}
                     </span>
                 </template>
@@ -25,7 +25,6 @@
             </div>
             <div class="box_title_money">
                 <span>{{ item.creat_time }}</span>
-                <!--                <span class="money_color">{{ item.price }} <small>￥</small> </span>-->
                 <span class="money_color"><span>合计：</span>{{ item.price }}<small>￥</small> </span>
             </div>
         </div>
@@ -34,6 +33,7 @@
             <van-button type="primary" @click="LookClue(item)" round size="mini" v-if="item.flag===1">&nbsp;查看线索&nbsp;</van-button>
         </div>
     </div>
+
   <!--    <div class="box">-->
   <!--        <div>-->
   <!--            <van-cell title="订单号：123456789456">-->

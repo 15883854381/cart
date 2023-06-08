@@ -1,7 +1,7 @@
 <template>
-    <van-notice-bar v-if="dataTable.length>0" mode="closeable">联系方式将在订单交易成功后显示</van-notice-bar>
+    <van-notice-bar v-if="dataTable.length>0" mode="closeable">购买成功后将在详情页面展示联系方式</van-notice-bar>
 
-    <Orderlist @click.stop="tourl(item)" v-for="item in dataTable" :key="item" :item="item"></Orderlist>
+    <Orderlist  v-for="item in dataTable" :key="item" :item="item"></Orderlist>
 </template>
 
 <script>
@@ -31,13 +31,11 @@ export default {
             })
         })
 
-        function tourl(e) {
-            router.push(`list_Business_Detail?clue_id=${e.clue_id}&type=${e.cart_type}`)
-        }
+
 
         return {
             dataTable,
-            tourl
+
         }
     }
 }

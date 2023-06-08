@@ -113,7 +113,7 @@ const router = createRouter({
 //路由守卫
 router.beforeEach(async (to, from, next) => {
 
-    document.title = "汽车线索互助联盟-" + to.matched[0].meta.title;
+    document.title = "汽车线索助手联盟-" + to.matched[0].meta.title;
     next();
     // /up_Business
     // my_Clue UpOrder

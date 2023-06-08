@@ -7,11 +7,9 @@
                     <van-field
                             v-model="form.user_name"
                             name="user_name"
-                            required
                             :maxlength="1"
                             label="用户（姓）"
                             placeholder="请填写用户（姓）"
-                            :rules="[{ required: true, message: '请填写用户（姓）' }]"
                     />
                 </van-col>
                 <van-col span="10">
@@ -152,7 +150,7 @@ let Price_data = ref({})
 // 确认城市
 function onConfirm({selectedOptions}) {
     form.provinceID = selectedOptions[0].id
-    form.cityID = selectedOptions[0].id
+    form.cityID = selectedOptions[1].id
     form.province_city = selectedOptions.map(item => item.text).join('/')
     data.showArea = false
     recommend_price(selectedOptions[0].id)

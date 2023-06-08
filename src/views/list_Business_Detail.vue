@@ -1,6 +1,6 @@
 <template>
-    <van-notice-bar v-if="flatActive" mode="closeable">订单交易成功后将展示当前线索的联系方式
-    </van-notice-bar>
+  <!--    v-if="flatActive"-->
+    <van-notice-bar mode="closeable">购买后将显示线索的联系方式</van-notice-bar>
   <!--    <van-cell-group inset>-->
   <!--        <van-cell  title="" title-style="color:red;font-size:18px;font-weight:600;" />-->
   <!--    </van-cell-group>-->
@@ -39,6 +39,12 @@
             <span class="Detail_title">线索价格：</span>
             <span class="Detail_money" style="font-size: 18px;">{{ detail_data.Price }}元/条</span>
         </div>
+        <div class="Detail_text_box" style="display: flex;justify-content: space-between;align-items: center;">
+            <span class="Detail_title">线索录音：</span>
+            <div style="width: 100%;flex: 1" v-html="Reding"></div>
+        </div>
+
+
         <div class="Detail_progres">
             <van-progress :pivot-text="`${detail_data.Tosell}/${detail_data.sales}`" :percentage="detail_data.progress"
                           color="#349C30" stroke-width="14"/>
@@ -128,11 +134,11 @@
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
 import shareArrowhead from '@/components/share_arrowhead.vue'
-import {getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
+import {DetailPhoneRecordingData, getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
 import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 import dayjs from 'dayjs'
 
-import {onMounted, ref, getCurrentInstance, computed} from "vue";
+import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {getUserId, loginVerify, shareClue} from "@/api/utils";
@@ -163,6 +169,9 @@ export default {
             {name: '复制链接', icon: 'link'},
             // {name: '二维码', icon: 'qrcode'},
         ];
+        let data = reactive({
+            RecordingUrl: '',
+        })
 
         const flatActive = computed({
             get: () => {
@@ -206,12 +215,6 @@ export default {
             });
         }
 
-        onMounted(() => {
-            console.log(location.href)
-
-        })
-
-
         //
         function onSelect(option) {
 
@@ -249,7 +252,6 @@ export default {
                 }
             })
         }
-
 
         // 初始化页面数据
         function getDetail(clueid, cart_type) {
@@ -314,7 +316,6 @@ export default {
             })
         }
 
-
         // 权限验证
         async function PermissionValidation() {
             let res = await loginVerify()
@@ -359,7 +360,6 @@ export default {
             }
         }
 
-
         // 分享线索
         function getUserid() {
             let userid = route.query?.userid;
@@ -379,11 +379,32 @@ export default {
             })
         }
 
+        // 获取线索的通话录音
+        function DetailPhoneRecording() {
+            let clue_id = route.query.clue_id;
+            DetailPhoneRecordingData({clue_id}).then(res => {
+                data.RecordingUrl = res.data.data.record_file_url
+
+            })
+
+        }
+
+        const Reding = computed({
+            get: () => {
+                return ` <audio controls style="width: 100%">
+                    <source src="${data.RecordingUrl}" type="audio/wav">
+                </audio>`;
+
+            }
+        })
+
+
         onMounted(() => {
             PermissionValidation()
             getDetail();
             getUserid()
             SearchClueBuyNUm()
+            DetailPhoneRecording()
 
         })
 
@@ -399,7 +420,9 @@ export default {
             toUrl,
             getBuy,
             flatActive,
-            Cshow
+            Cshow,
+            Reding,
+            ...toRefs(data)
         }
 
     }

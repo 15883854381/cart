@@ -27,27 +27,26 @@
                 <span class="money_color">{{ dataItem.price }} <small>￥</small> </span>
             </div>
         </div>
-        <!--        <div class="footer_btn" v-if="dataItem.flat===2">-->
-        <!--            <van-button plain round size="mini">&nbsp;取消订单&nbsp;</van-button>-->
-        <!--            <van-button type="primary"  round size="mini">&nbsp;立即付款&nbsp;</van-button>-->
-        <!--        </div>-->
+                <div class="footer_btn">
+                    <van-button @click="tourl(item)" type="primary"  round size="mini">&nbsp;查看线索&nbsp;</van-button>
+                </div>
 
-        <div class="footer_btn" v-if="dataItem.flat===4">
-            <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>
-            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;
-            </van-button>
-            <van-button type="success" :disabled="dataItem.callPhoneNumber<=0" @click.stop="callPhone(dataItem)" round
-                        size="mini">&nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次
-            </van-button>
-        </div>
+<!--        <div class="footer_btn" v-if="dataItem.flat===4">-->
+<!--            <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>-->
+<!--            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;-->
+<!--            </van-button>-->
+<!--            <van-button type="success" :disabled="dataItem.callPhoneNumber<=0" @click.stop="callPhone(dataItem)" round-->
+<!--                        size="mini">&nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次-->
+<!--            </van-button>-->
+<!--        </div>-->
 
-        <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3">
-            <!--            {{ dataItem.callPhoneNumber }}-->
-            <van-button :disabled="dataItem.callPhoneNumber<=0" type="success" @click.stop="callPhone(dataItem)" round
-                        size="mini">
-                &nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次
-            </van-button>
-        </div>
+<!--        <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3">-->
+<!--            &lt;!&ndash;            {{ dataItem.callPhoneNumber }}&ndash;&gt;-->
+<!--            <van-button :disabled="dataItem.callPhoneNumber<=0" type="success" @click.stop="callPhone(dataItem)" round-->
+<!--                        size="mini">-->
+<!--                &nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次-->
+<!--            </van-button>-->
+<!--        </div>-->
     </div>
 </template>
 <script>
@@ -88,6 +87,10 @@ export default {
             });
         }
 
+        function tourl() {
+            console.log(item)
+            router.push(`list_Business_Detail?clue_id=${item.clue_id}&type=${item.cart_type}`)
+        }
         function refund_reason() {
             router.push({
                 path: '/Ordernotes',
@@ -155,7 +158,8 @@ export default {
             callPhone,
             dataItem,
             OrderEditQueryBtn,
-            refund_reason
+            refund_reason,
+            tourl
         }
     }
 

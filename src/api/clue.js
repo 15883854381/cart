@@ -39,6 +39,11 @@ export function SearchClueBuyNUmData(data) {
 
 
 // 检查手机号码
-export function batchUcheckData(data){
-    return  axios.post('/Clue/Phonecheck',data)
+export function batchUcheckData(data) {
+    return axios.post('/Clue/Phonecheck', data)
+}
+
+// 获取线索详情页的录音
+export function DetailPhoneRecordingData(data) {
+    return axios.post('/Clue/DetailPhoneRecording', data)
 }
