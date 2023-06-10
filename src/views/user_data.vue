@@ -148,6 +148,7 @@
                             center
                             clearable
                             required
+                            :maxlength="6"
                             label="短信验证码"
                             placeholder="请输入短信验证码"
                     >

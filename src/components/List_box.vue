@@ -39,7 +39,7 @@
                     <van-icon class="iconfont" class-prefix="my-icon" name="fabucheliang"/> {{ Cluedata.upClueNum }} 条
                 </span>
                     <span>
-                    <van-icon class="iconfont" class-prefix="my-icon" name="dianzan"/> 80%
+                    <van-icon class="iconfont" class-prefix="my-icon" name="dianzan"/> {{ Cluedata.percentage }}%
                 </span>
                 </div>
                 <div>

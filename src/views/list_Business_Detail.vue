@@ -82,7 +82,7 @@
                 </van-col>
                 <van-col span="12">
                     <span class="Detail_title">好评率：</span>
-                    <span style="color: #333" class="Detail_name">80%</span>
+                    <span style="color: #333" class="Detail_name">{{detail_data.percentage}}%</span>
                 </van-col>
                 <!--                <van-col span="8">-->
                 <!--                    <span class="Detail_title">分享：</span>-->
