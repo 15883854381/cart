@@ -1,38 +1,44 @@
 <template>
-    <div class="box" v-for="(item,index) in data" :key="item.id">
-        <div>
-            <van-cell>
-                <template #title>
-                    <van-tag plain size="medium" type="primary">{{ item.cart_type === 1 ? '新车' : '二手车' }}</van-tag>
-                </template>
-                <template #value>
+    <div class="UpOlderBox" @scroll="getScroolData">
+        <div class="box" v-for="(item,index) in Orderdata" :key="item.id">
+            <div>
+                <van-cell>
+                    <template #title>
+                        <van-tag plain size="medium" type="primary">{{
+                            item.cart_type === 1 ? '新车' : '二手车'
+                            }}
+                        </van-tag>
+                    </template>
+                    <template #value>
                     <span class="title_sub" :style="{color: item.flag ===1?'#42b983':'#D55324'}">
                     {{
                         item.flag === 1 ? '审核通过' : item.flag === 2 ? '审核中' : item.flag === 4 ? '待上线' : '无效线索'
                         }}
                     </span>
-                </template>
-            </van-cell>
-        </div>
-        <!--标题-->
-        <div class="content">
-            <div class="box_title box_public">
+                    </template>
+                </van-cell>
+            </div>
+            <!--标题-->
+            <div class="content">
+                <div class="box_title box_public">
             <span class="box_title_title">
                 <span v-if="item.user_name" style="color: #1D69A7">{{ item.user_name }}</span>
                 <span v-if="item.province && item.city">【{{ item.province }}.{{ item.city }}】</span>
                 <span v-if="item.brand" style="color:#ff9900">【{{ item.brand }}】</span></span>
-                <!--                <span class="box_title_time">半小时前</span>-->
+                    <!--                <span class="box_title_time">半小时前</span>-->
+                </div>
+                <div class="box_title_money">
+                    <span>{{ item.creat_time }}</span>
+                    <span class="money_color"><span>合计：</span>{{ item.price }}<small>￥</small> </span>
+                </div>
             </div>
-            <div class="box_title_money">
-                <span>{{ item.creat_time }}</span>
-                <span class="money_color"><span>合计：</span>{{ item.price }}<small>￥</small> </span>
+            <div class="footer_btn">
+                <van-button @click="DeleteClue(item,index)" plain round size="mini">&nbsp;删除线索&nbsp;</van-button>
+                <van-button type="primary" @click="LookClue(item)" round size="mini" v-if="item.flag===1">&nbsp;查看线索&nbsp;</van-button>
             </div>
-        </div>
-        <div class="footer_btn">
-            <van-button @click="DeleteClue(item,index)" plain round size="mini">&nbsp;删除线索&nbsp;</van-button>
-            <van-button type="primary" @click="LookClue(item)" round size="mini" v-if="item.flag===1">&nbsp;查看线索&nbsp;</van-button>
         </div>
     </div>
+
 
   <!--    <div class="box">-->
   <!--        <div>-->
@@ -63,24 +69,39 @@
 
 <script>
 import {getUpOrder} from '@/api/upOrder'
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
-import {showConfirmDialog, showNotify} from "vant";
+import {showConfirmDialog, showLoadingToast, showNotify} from "vant";
 import {deleteCurlData} from "@/api/clue";
+import {useMouse} from "@/hooks/Ulits";
 
 export default {
     name: "UpOrder",
 
     setup() {
-        let data = ref();
+        let Orderdata = ref([]);
         let router = useRouter()
-        getUpOrder().then((res) => {
-            if (res.data.code !== 200) {
-                showNotify({type: 'primary', message: res.data.mes});
-                return false
-            }
-            data.value = res.data.data
-        })
+        let page = {
+            pageSize: 10,
+            pageNumber: 1,
+            pageCount: 0,
+        }
+
+
+        function getUpOrderData(pageData) {
+            getUpOrder(pageData).then((res) => {
+                let {data, code, mes} = res.data
+                if (code !== 200) {
+                    showNotify({type: 'primary', message: mes});
+                    return false
+                }
+                console.log(data.data)
+                page.pageCount = data.pageCount
+                for (let item in data.data) {
+                    Orderdata.value.push(data.data[item])
+                }
+            })
+        }
 
         function LookClue(e) {
             router.replace({
@@ -103,7 +124,7 @@ export default {
                 deleteCurlData({clue_id: e.clue_id, type: e.cart_type}).then(res => {
                     let {code, mes} = res.data
                     if (code === 200) {
-                        data.value.splice(index, 1)
+                        Orderdata.value.splice(index, 1)
                     }
                     showNotify({
                         type: code === 200 ? 'success' : 'danger',
@@ -120,10 +141,41 @@ export default {
 
         }
 
+        let time = null;
+        function getScroolData(e) {
+            if (page.pageCount > Orderdata.value.length) {
+                useMouse(e).then(res => {
+                    clearTimeout(time)
+                    time = setTimeout(() => {
+                        if (res) {
+                            const toast1 = showLoadingToast({
+                                message: '加载中...',
+                                forbidClick: true,
+                                loadingType: 'spinner',
+                            });
+                            page.pageNumber += 1;
+                            getUpOrderData(page)
+                            toast1.close();
+                        }
+                    }, 200)
+                })
+            } else {
+                showNotify({
+                    type: 'primary',
+                    message: '没有数据了'
+                })
+            }
+        }
+
+        onMounted(() => {
+            getUpOrderData()
+        })
+
         return {
-            data,
+            Orderdata,
             LookClue,
-            DeleteClue
+            DeleteClue,
+            getScroolData
         }
     }
 }
@@ -213,5 +265,10 @@ export default {
 .title_sub {
   color: #D55324;
   font-size: 12px
+}
+
+.UpOlderBox {
+  height: calc(100vh - 50px);
+  overflow: scroll;
 }
 </style>

@@ -29,6 +29,7 @@
         </div>
                 <div class="footer_btn">
                     <van-button @click="tourl(item)" type="primary"  round size="mini">&nbsp;查看线索&nbsp;</van-button>
+                    <van-button type="success" v-if="dataItem.flat===1 || dataItem.flat===3"  round size="mini">&nbsp;拨打电话&nbsp;</van-button>
                 </div>
 
 <!--        <div class="footer_btn" v-if="dataItem.flat===4">-->

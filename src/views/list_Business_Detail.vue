@@ -39,7 +39,8 @@
             <span class="Detail_title">线索价格：</span>
             <span class="Detail_money" style="font-size: 18px;">{{ detail_data.Price }}元/条</span>
         </div>
-        <div class="Detail_text_box" style="display: flex;justify-content: space-between;align-items: center;">
+        <div v-if="RecordingUrl" class="Detail_text_box"
+             style="display: flex;justify-content: space-between;align-items: center;">
             <span class="Detail_title">线索录音：</span>
             <div style="width: 100%;flex: 1" v-html="Reding"></div>
         </div>
@@ -82,7 +83,7 @@
                 </van-col>
                 <van-col span="12">
                     <span class="Detail_title">好评率：</span>
-                    <span style="color: #333" class="Detail_name">{{detail_data.percentage}}%</span>
+                    <span style="color: #333" class="Detail_name">{{ detail_data.percentage }}%</span>
                 </van-col>
                 <!--                <van-col span="8">-->
                 <!--                    <span class="Detail_title">分享：</span>-->
@@ -279,6 +280,7 @@ export default {
                 forbidClick: true,
             });
             getDetail(item.clue_id, item.cart_type)
+            DetailPhoneRecording(item.clue_id)
         }
 
         // 获取购买金额
@@ -380,8 +382,8 @@ export default {
         }
 
         // 获取线索的通话录音
-        function DetailPhoneRecording() {
-            let clue_id = route.query.clue_id;
+        function DetailPhoneRecording(item) {
+            let clue_id =  item || route.query.clue_id;
             DetailPhoneRecordingData({clue_id}).then(res => {
                 data.RecordingUrl = res.data.data.record_file_url
 

@@ -7,7 +7,7 @@
         <van-tabbar style="border-top: 1px solid #ccc;margin-top: 50px" v-model="active">
             <van-tabbar-item @click="getRouter('/list_Business')" icon="home-o">购车线索</van-tabbar-item>
             <!--            <van-tabbar-item @click="getRouter('/my_Business')" icon="search">我的线索</van-tabbar-item>-->
-            <van-tabbar-item @click="getRouter('/deal_Business')" icon="friends-o">成交案例</van-tabbar-item>
+            <van-tabbar-item @click="getRouter('/deal_Business')" icon="label-o">行业资讯</van-tabbar-item>
             <van-tabbar-item @click="getRouter('/user_data')" icon="setting-o">个人设置</van-tabbar-item>
         </van-tabbar>
     </div>
@@ -57,7 +57,7 @@ export default {
 @import "//at.alicdn.com/t/c/font_4027755_ethzpxfw6ju.css";
 
 .view_content {
-    margin-bottom: 60px;
+    margin-bottom: 50px;
     overflow: hidden;
 }
 </style>
