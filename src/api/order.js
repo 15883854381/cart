@@ -61,3 +61,12 @@ export function incomeDetailData() {
     })
 }
 
+// 根据订单号查询手机号
+export function getPhone_numberData(data) {
+    return axios({
+        method: 'post',
+        url: '/Order/getPhone_number',
+        data
+    })
+}
+

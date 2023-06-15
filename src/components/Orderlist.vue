@@ -27,32 +27,34 @@
                 <span class="money_color">{{ dataItem.price }} <small>￥</small> </span>
             </div>
         </div>
-                <div class="footer_btn">
-                    <van-button @click="tourl(item)" type="primary"  round size="mini">&nbsp;查看线索&nbsp;</van-button>
-                    <van-button type="success" v-if="dataItem.flat===1 || dataItem.flat===3"  round size="mini">&nbsp;拨打电话&nbsp;</van-button>
-                </div>
+        <div class="footer_btn">
+            <van-button @click="tourl(item)" type="primary" round size="mini">&nbsp;查看线索&nbsp;</van-button>
+            <van-button @click="callPhoneNumber(item)" type="success"
+                        v-if="dataItem.flat===1 || dataItem.flat===3|| dataItem.flat===6" round size="mini">&nbsp;拨打电话&nbsp;
+            </van-button>
+        </div>
 
-<!--        <div class="footer_btn" v-if="dataItem.flat===4">-->
-<!--            <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>-->
-<!--            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;-->
-<!--            </van-button>-->
-<!--            <van-button type="success" :disabled="dataItem.callPhoneNumber<=0" @click.stop="callPhone(dataItem)" round-->
-<!--                        size="mini">&nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次-->
-<!--            </van-button>-->
-<!--        </div>-->
+        <!--        <div class="footer_btn" v-if="dataItem.flat===4">-->
+        <!--            <van-button plain round size="mini" @click.stop="refund_reason">&nbsp;订单申述&nbsp;</van-button>-->
+        <!--            <van-button type="primary" round size="mini" @click.stop="OrderEditQueryBtn">&nbsp;订单有效&nbsp;-->
+        <!--            </van-button>-->
+        <!--            <van-button type="success" :disabled="dataItem.callPhoneNumber<=0" @click.stop="callPhone(dataItem)" round-->
+        <!--                        size="mini">&nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次-->
+        <!--            </van-button>-->
+        <!--        </div>-->
 
-<!--        <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3">-->
-<!--            &lt;!&ndash;            {{ dataItem.callPhoneNumber }}&ndash;&gt;-->
-<!--            <van-button :disabled="dataItem.callPhoneNumber<=0" type="success" @click.stop="callPhone(dataItem)" round-->
-<!--                        size="mini">-->
-<!--                &nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次-->
-<!--            </van-button>-->
-<!--        </div>-->
+        <!--        <div class="footer_btn" v-if="dataItem.flat===1 || dataItem.flat===3 || dataItem.flat===6">-->
+        <!--            &lt;!&ndash;            {{ dataItem.callPhoneNumber }}&ndash;&gt;-->
+        <!--            <van-button :disabled="dataItem.callPhoneNumber<=0" type="success" @click.stop="callPhone(dataItem)" round-->
+        <!--                        size="mini">-->
+        <!--                &nbsp;拨打次数剩余【{{ dataItem.callPhoneNumber }}】次-->
+        <!--            </van-button>-->
+        <!--        </div>-->
     </div>
 </template>
 <script>
 import {CallingPhone} from "@/api/phone";
-import {OrderEditQuery} from "@/api/order"
+import {getPhone_numberData, OrderEditQuery} from "@/api/order"
 import {showConfirmDialog, showDialog, showNotify} from "vant";
 import {computed, reactive} from "vue";
 import router from "@/router";
@@ -92,6 +94,7 @@ export default {
             console.log(item)
             router.push(`list_Business_Detail?clue_id=${item.clue_id}&type=${item.cart_type}`)
         }
+
         function refund_reason() {
             router.push({
                 path: '/Ordernotes',
@@ -154,13 +157,32 @@ export default {
             })
         }
 
+        // 跳转拨打电话界面 不是axb
+        function callPhoneNumber(e) {
+            getPhone_numberData({out_trade_no: e.out_trade_no}).then(res => {
+                let {code, data, mes} = res.data
+                console.log(data)
+                if (code !== 200) {
+                    showNotify({
+                        type: 'danger',
+                        message: mes
+                    })
+                    return false;
+                }
+                window.location.href = 'tel:' + data[0]['phone_number']
+            })
+
+
+        }
+
 
         return {
             callPhone,
             dataItem,
             OrderEditQueryBtn,
             refund_reason,
-            tourl
+            tourl,
+            callPhoneNumber
         }
     }
 

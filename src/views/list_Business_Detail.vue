@@ -8,6 +8,7 @@
     <div class="Detail">
         <div class="Detail_big_title">
             <!--            【四川.成都】 奔驰-->
+            <span class="Detail_big_title_title">购车地区：</span>
             <span v-if="detail_data.provinceCity">【{{ detail_data.provinceCity }}】</span>
             <span v-if="detail_data.brandname">{{ detail_data.brandname }}</span>
         </div>
@@ -23,7 +24,8 @@
 
         <div class="Detail_text_box">
             <span class="Detail_title">联系方式：</span>
-            <a class="Detail_num" v-if="detail_data.count"
+            <a class="Detail_num"
+               v-if="detail_data.flat === 1 || detail_data.flat === 3 || detail_data.flat === 5 || detail_data.flat === 6"
                :href="'tel:'+ detail_data.Cluephone_number ">{{ detail_data.Cluephone_number }}</a>
             <span v-else class="Detail_num">{{ detail_data.Cluephone_number }}</span>
             <span class="Detail_num" style="color: #333333">【{{ detail_data.PhoneBelongingplace }}】</span>
@@ -39,7 +41,7 @@
             <span class="Detail_title">线索价格：</span>
             <span class="Detail_money" style="font-size: 18px;">{{ detail_data.Price }}元/条</span>
         </div>
-        <div v-if="RecordingUrl" class="Detail_text_box"
+        <div class="Detail_text_box" v-if="RecordingUrl"
              style="display: flex;justify-content: space-between;align-items: center;">
             <span class="Detail_title">线索录音：</span>
             <div style="width: 100%;flex: 1" v-html="Reding"></div>
@@ -139,7 +141,7 @@ import {DetailPhoneRecordingData, getClueDetail, getClueList, SearchClueBuyNUmDa
 import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 import dayjs from 'dayjs'
 
-import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive} from "vue";
+import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive, nextTick} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {getUserId, loginVerify, shareClue} from "@/api/utils";
@@ -170,7 +172,7 @@ export default {
             {name: '复制链接', icon: 'link'},
             // {name: '二维码', icon: 'qrcode'},
         ];
-        let data = reactive({
+        let data_data = reactive({
             RecordingUrl: '',
         })
 
@@ -383,22 +385,36 @@ export default {
 
         // 获取线索的通话录音
         function DetailPhoneRecording(item) {
-            let clue_id =  item || route.query.clue_id;
+            let clue_id = item || route.query.clue_id;
             DetailPhoneRecordingData({clue_id}).then(res => {
-                data.RecordingUrl = res.data.data.record_file_url
-
+                let {code, data} = res.data
+                if (code === 200) {
+                    data_data.RecordingUrl = data.record_file_url
+                }
             })
 
         }
 
+
+        let music = ref(null);
+
         const Reding = computed({
             get: () => {
-                return ` <audio controls style="width: 100%">
-                    <source src="${data.RecordingUrl}" type="audio/wav">
-                </audio>`;
+                return ` <audio id="music" preload controls style="width: 100%">
+                             <source src="${data_data.RecordingUrl}" type="audio/wav">
+                         </audio>`;
 
             }
         })
+
+        function music_data() {
+            setTimeout(() => {
+                let id = document.getElementById('music')
+                wx.ready(function() {
+                    id.play();
+                });
+            }, 2000)
+        }
 
 
         onMounted(() => {
@@ -407,6 +423,7 @@ export default {
             getUserid()
             SearchClueBuyNUm()
             DetailPhoneRecording()
+            music_data()
 
         })
 
@@ -424,7 +441,8 @@ export default {
             flatActive,
             Cshow,
             Reding,
-            ...toRefs(data)
+            music,
+            ...toRefs(data_data)
         }
 
     }
@@ -561,6 +579,11 @@ export default {
     margin-bottom: 8px;
     margin-right: 5px;
   }
+}
+
+.Detail_big_title_title {
+  color: #999;
+  font-size: 12px
 }
 
 </style>
