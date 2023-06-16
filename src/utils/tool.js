@@ -86,7 +86,6 @@ export function getQueryString(name) {
 // 登录验证
 export async function logVer() {
     let res = await loginVerify()
-    console.log(res)
     switch (res.data.code) {
         case 401:
         case 306:

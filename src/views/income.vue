@@ -44,7 +44,6 @@ let totals = ref(0);
 
 function incomeDetail() {
     incomeDetailData().then(res => {
-        console.log(res)
         let {code, data: {data, total}, mes} = res.data
         if (code !== 200) {
             showNotify({

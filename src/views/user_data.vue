@@ -1,11 +1,5 @@
 <template>
     <div class="margin_box">
-
-
-        <!-- <a
-          href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf02c02843479d12a&redirect_uri=http%3A%2F%2F192.168.0.112%3A8082%2Fuser_data&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect"
-          >455655665</a
-        > -->
         <div class="my-box" v-cloak>
             <div class="m-head">
                 <div class="m-head-img">
@@ -32,17 +26,17 @@
             </div>
 
             <div class="user_info_money">
-                <div class="user_padding_box">
+                <div class="user_padding_box" @click="toUrl('/UpOrder')">
                     <div class="user_num">{{ UserInfoD.clueCount || 0 }}</div>
                     <div class="user_text">发布</div>
                 </div>
-                <div class="user_padding_box">
+                <div class="user_padding_box" @click="toUrl('/income')">
                     <div class="user_num" style="color:red;">
                         {{ UserInfoD.orderCount ? `${UserInfoD.orderCount}.00` : '0.00' }}
                     </div>
                     <div class="user_text">收益</div>
                 </div>
-                <div class="user_padding_box">
+                <div class="user_padding_box" @click="toUrl('/share')">
                     <div class="user_num">{{ UserInfoD.shareCount || 0 }}</div>
                     <div class="user_text">分享</div>
                 </div>
@@ -57,7 +51,7 @@
                     <van-grid-item icon="share-o" @click="toUrl('/share')" text="我的分享"/>
                     <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>
                     <van-grid-item icon="service-o" to="/customer" text="联系客服"/>
-<!--                    <van-grid-item icon="service-o" to="/test" text="测试"/>-->
+                    <!--                    <van-grid-item icon="service-o" to="/test" text="测试"/>-->
                     <van-grid-item icon="replay" @click="clearData" text="退出登录"/>
                 </van-grid>
             </div>

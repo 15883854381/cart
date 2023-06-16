@@ -29,9 +29,7 @@ const router = useRouter();
 
 function getShartList() {
     getShareListData().then(res => {
-        console.log(res)
         let {data, code, mes} = res.data
-        console.log(data)
         if (code !== 200) {
             showNotify({
                 type: 'danger',
@@ -50,7 +48,6 @@ function getItemUser(e) {
             message: '该好友还没有上传线索',
         })
     } else {
-        console.log('展示用户线索')
         router.push({
             path: '/shareUserList',
             query: {
@@ -61,7 +58,6 @@ function getItemUser(e) {
 }
 
 onMounted(() => {
-    console.log(0)
     getShartList()
 })
 

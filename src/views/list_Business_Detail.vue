@@ -44,8 +44,10 @@
         <div class="Detail_text_box" v-if="RecordingUrl"
              style="display: flex;justify-content: space-between;align-items: center;">
             <span class="Detail_title">线索录音：</span>
-            <div style="width: 100%;flex: 1"><audios :src="RecordingUrl"></audios></div>
-<!--            <div style="width: 100%;flex: 1" v-html="Reding"></div>-->
+            <div style="width: 100%;flex: 1">
+                <audios :key="timer" :src="RecordingUrl"></audios>
+            </div>
+            <!--            <div style="width: 100%;flex: 1" v-html="Reding"></div>-->
         </div>
         <div class="Detail_progres">
             <van-progress :pivot-text="`${detail_data.Tosell}/${detail_data.sales}`" :percentage="detail_data.progress"
@@ -143,7 +145,7 @@ import {DetailPhoneRecordingData, getClueDetail, getClueList, SearchClueBuyNUmDa
 import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 import dayjs from 'dayjs'
 
-import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive} from "vue";
+import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive, nextTick} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {getUserId, loginVerify, shareClue} from "@/api/utils";
@@ -178,6 +180,7 @@ export default {
         let data_data = reactive({
             RecordingUrl: '',
         })
+        let timer = ref("");
 
         const flatActive = computed({
             get: () => {
@@ -212,7 +215,7 @@ export default {
                         title: `${detail_data.value.provinceCity ? `【${detail_data.value.provinceCity}】` : ''}${detail_data.value.brandname ? `【${detail_data.value.brandname}】` : ''}线索`,
                         desc: `${detail_data.value.user_name}有购买意向。    ${time}`,
                         link: location.href + UserId.value, // 分享后的地址
-                        imgUrl: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM506rD0reCQywDvDDFOIWsRaaqVcLFrSJ9BpH05l1vhJg/0',
+                        imgUrl: 'https://wx.qlogo.cn/mmopen/fc1ljSVWaib9pFQd4BSdYss8QmTcQX6p6NqicNGS6m7ABXqvgPNxKeW5KWvAmwIK229Nm7z5cWaPct8V5lhzQsEzGNUyLya01z/64',
                     };
                     //点击要去分享
                     wx.onMenuShareAppMessage(shareData);
@@ -286,6 +289,9 @@ export default {
             });
             getDetail(item.clue_id, item.cart_type)
             DetailPhoneRecording(item.clue_id)
+            setTimeout(() => {
+                timer.value = new Date().getTime().toString()
+            }, 500)
         }
 
         // 获取购买金额
@@ -417,7 +423,6 @@ export default {
             SearchClueBuyNUm()
 
 
-
         })
 
         return {
@@ -435,6 +440,7 @@ export default {
             Cshow,
             Reding,
             music,
+            timer,
 
             ...toRefs(data_data)
         }
