@@ -1,18 +1,17 @@
 <template>
 
-    <div class="magin_box">
-        <div style="width: 100%" class="box_da">
-            <div class="box">
-                <div>
-                    <van-icon @click="start" v-if="state" name="pause-circle-o"/>
-                    <van-icon @click="end" v-else name="play-circle-o"/>
-                </div>
-                <div class="slider">
-                    <van-slider @change="setTime" bar-height="10px" button-size="10px" v-model="value" :max="maxvalue"/>
-                </div>
-                <div class="time">
-                    <span>{{ value }} / {{ maxvalue }}s</span>
-                </div>
+
+    <div style="width: 92%" class="box_da">
+        <div class="box">
+            <div>
+                <van-icon size="25" @click="start" v-if="state" name="pause-circle-o"/>
+                <van-icon size="25" @click="end" v-else name="play-circle-o"/>
+            </div>
+            <div class="slider">
+                <van-slider @change="setTime" bar-height="10px" button-size="10px" v-model="value" :max="maxvalue"/>
+            </div>
+            <div class="time">
+                <span>{{ value }} / {{ maxvalue }}s</span>
             </div>
         </div>
     </div>
@@ -21,20 +20,18 @@
 </template>
 
 <script>
-import {onBeforeMount, onBeforeUnmount, onMounted, ref} from "vue";
+import {onBeforeUnmount, onMounted, reactive, ref} from "vue";
 import {Howl} from "howler";
 
 export default {
-    name: "test",
     props: {
         setData: {
             type: Boolean,
-            default: true,
+            default: false,
         },
         src: {
             type: String,
             default: 'https://hxyrecord.oss-cn-beijing.aliyuncs.com/haoxiaoyun/2023-06-14/4a42e7c6fe96a9779d76589c9999d644.wav',
-            required: true,
         }
     },
     setup(props) {
@@ -42,17 +39,7 @@ export default {
         let maxvalue = ref(0)
         let state = ref(false);
         let times = null;
-
-        let sound = new Howl({
-            src: props.src,
-            html5: true,
-            onload: function () {
-                maxvalue.value = parseInt(sound.duration())
-            },
-            onend() {
-                soundPause()
-            },
-        });
+        let sound = reactive({});
 
 
         function music_data() {
@@ -77,11 +64,13 @@ export default {
 
 
         function start() {
+
             soundPause()
 
         }
 
         function end() {
+
             soundPlay()
         }
 
@@ -101,6 +90,19 @@ export default {
         }
         onBeforeUnmount(() => {
             soundPause()
+        })
+        onMounted(() => {
+            sound = new Howl({
+                src: props.src,
+                html5: true,
+                onload: function () {
+                    maxvalue.value = parseInt(sound.duration())
+                },
+                onend() {
+                    soundPause()
+                },
+            })
+
         })
 
         return {

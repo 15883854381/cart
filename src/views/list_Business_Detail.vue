@@ -13,7 +13,7 @@
             <span v-if="detail_data.brandname">{{ detail_data.brandname }}</span>
         </div>
         <div class="Detail_text_box">
-            <span class="Detail_title">联系人：</span>
+            <span class="Detail_title">联&nbsp;&nbsp;系&nbsp;&nbsp;人：</span>
             <span class="Detail_name">{{ detail_data.user_name }}</span>
             <span style="color: #333;float: right;margin-bottom: 2px" @click="Showshare" class="Detail_name">
                         <van-button icon="share-o" size="mini" type="primary">去分享</van-button>
@@ -44,10 +44,9 @@
         <div class="Detail_text_box" v-if="RecordingUrl"
              style="display: flex;justify-content: space-between;align-items: center;">
             <span class="Detail_title">线索录音：</span>
-            <div style="width: 100%;flex: 1" v-html="Reding"></div>
+            <div style="width: 100%;flex: 1"><audios :src="RecordingUrl"></audios></div>
+<!--            <div style="width: 100%;flex: 1" v-html="Reding"></div>-->
         </div>
-
-
         <div class="Detail_progres">
             <van-progress :pivot-text="`${detail_data.Tosell}/${detail_data.sales}`" :percentage="detail_data.progress"
                           color="#349C30" stroke-width="14"/>
@@ -80,7 +79,7 @@
         <div class="Detail_text_box">
             <van-row>
                 <van-col span="12">
-                    <span class="Detail_title">已发布：</span>
+                    <span class="Detail_title">已&nbsp;&nbsp;发&nbsp;&nbsp;布：</span>
                     <span style="color: #333" class="Detail_name">{{ detail_data.upClueNum }} 条</span>
                 </van-col>
                 <van-col span="12">
@@ -114,6 +113,8 @@
                 </tr>
             </table>
         </div>
+
+
         <div class="new_list">
             <line_text title="最新可接单循盘"></line_text>
         </div>
@@ -136,12 +137,13 @@
 <script>
 import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
+import audios from '@/components/audioComopnnets.vue'
 import shareArrowhead from '@/components/share_arrowhead.vue'
 import {DetailPhoneRecordingData, getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
 import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 import dayjs from 'dayjs'
 
-import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive, nextTick} from "vue";
+import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {getUserId, loginVerify, shareClue} from "@/api/utils";
@@ -153,7 +155,8 @@ export default {
     components: {
         List_box,
         line_text,
-        shareArrowhead
+        shareArrowhead,
+        audios
     },
 
     setup() {
@@ -403,27 +406,17 @@ export default {
                 return ` <audio id="music" preload controls style="width: 100%">
                              <source src="${data_data.RecordingUrl}" type="audio/wav">
                          </audio>`;
-
             }
         })
 
-        function music_data() {
-            setTimeout(() => {
-                let id = document.getElementById('music')
-                wx.ready(function() {
-                    id.play();
-                });
-            }, 2000)
-        }
-
-
+        DetailPhoneRecording()
         onMounted(() => {
             PermissionValidation()
             getDetail();
             getUserid()
             SearchClueBuyNUm()
-            DetailPhoneRecording()
-            music_data()
+
+
 
         })
 
@@ -442,6 +435,7 @@ export default {
             Cshow,
             Reding,
             music,
+
             ...toRefs(data_data)
         }
 
@@ -463,16 +457,12 @@ export default {
   &_title {
     font-size: 13px;
     color: #999999;
-    margin-right: 10px;
+    //margin-right: 10px;
   }
 
   &_name {
     font-size: 15px;
     font-weight: bold;
-    //display: flex;
-    //justify-content: center;
-    //flex-direction:column;
-    //align-items: center;
   }
 
   &_num {

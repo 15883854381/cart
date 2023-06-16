@@ -57,6 +57,7 @@
                     <van-grid-item icon="share-o" @click="toUrl('/share')" text="我的分享"/>
                     <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>
                     <van-grid-item icon="service-o" to="/customer" text="联系客服"/>
+<!--                    <van-grid-item icon="service-o" to="/test" text="测试"/>-->
                     <van-grid-item icon="replay" @click="clearData" text="退出登录"/>
                 </van-grid>
             </div>
