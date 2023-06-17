@@ -45,18 +45,17 @@
              style="display: flex;justify-content: space-between;align-items: center;">
             <span class="Detail_title">线索录音：</span>
             <div style="width: 100%;flex: 1">
-                <audios :key="timer" :src="RecordingUrl"></audios>
+                <audios setData  :key="timer" :src="RecordingUrl"></audios>
             </div>
-            <!--            <div style="width: 100%;flex: 1" v-html="Reding"></div>-->
         </div>
         <div class="Detail_progres">
-            <van-progress :pivot-text="`${detail_data.Tosell}/${detail_data.sales}`" :percentage="detail_data.progress"
+            <van-progress :pivot-text="mark_num" :percentage="detail_data.progress"
                           color="#349C30" stroke-width="14"/>
             <small class="Detail_small_text">剩余【{{ residueNum }}】次购买机会，购买后可见</small>
         </div>
         <div class="Detail_buy_btn">
             <van-row gutter="20">
-                <van-col span="12">
+                <van-col span="12" v-if="detail_data.sales > 1">
                     <!--                    flag == 3  表示 线索已下架-->
                     <van-button plain block v-if="detail_data.flag===3" disabled type="primary">线索已下架</van-button>
 
@@ -64,7 +63,7 @@
                         {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
                     </van-button>
                 </van-col>
-                <van-col span="12">
+                <van-col :span="detail_data.sales > 1?12:24">
                     <van-button v-if="detail_data.flag===3" block disabled type="primary">线索已下架</van-button>
                     <van-button v-else :disabled="flatActive? true:!residueNum" @click="getBuy(1)" block
                                 type="primary">
@@ -145,7 +144,7 @@ import {DetailPhoneRecordingData, getClueDetail, getClueList, SearchClueBuyNUmDa
 import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 import dayjs from 'dayjs'
 
-import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive, nextTick} from "vue";
+import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {getUserId, loginVerify, shareClue} from "@/api/utils";
@@ -163,13 +162,13 @@ export default {
 
     setup() {
         const {proxy} = getCurrentInstance()
-        let detail_data = ref([])
+        let detail_data = ref({})
         const route = useRoute()
         const router = useRouter();
         let residueNum = ref(0);// 剩余下单次数
         let listData = ref([]);
         let showShare = ref(false);
-        let BuyNumData = ref([]);
+        let BuyNumData = ref(null);
         let UserId = ref('')
         let Cshow = ref(false)
         const options = [
@@ -182,11 +181,9 @@ export default {
         })
         let timer = ref("");
 
-        const flatActive = computed({
-            get: () => {
-                let flatS = [1, 3, 4, 5, 6, 7];
-                return flatS.includes(detail_data.value.flat)
-            }
+        const flatActive = computed(() => {
+            let flatS = [1, 3, 4, 5, 6, 7];
+            return flatS.includes(detail_data.value.flat)
         })
 
 
@@ -289,9 +286,12 @@ export default {
             });
             getDetail(item.clue_id, item.cart_type)
             DetailPhoneRecording(item.clue_id)
+            SearchClueBuyNUm(item.clue_id)
             setTimeout(() => {
                 timer.value = new Date().getTime().toString()
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
             }, 500)
+
         }
 
         // 获取购买金额
@@ -332,7 +332,7 @@ export default {
         // 权限验证
         async function PermissionValidation() {
             let res = await loginVerify()
-            let {data, mes, code} = res.data
+            let {mes, code} = res.data
             if (code !== 200 && code !== 400) {
                 switch (code) {
                     case 305:
@@ -382,13 +382,10 @@ export default {
         }
 
         // 获取当前线索的购买订单
-        function SearchClueBuyNUm() {
-            let clue_id = route.query.clue_id;
+        function SearchClueBuyNUm(clueid) {
+            let clue_id = clueid || route.query.clue_id;
             SearchClueBuyNUmData({clue_id}).then(res => {
-                let {data} = res.data
-                if (data !== []) {
-                    BuyNumData.value = res.data.data
-                }
+                BuyNumData.value = res.data.data
             })
         }
 
@@ -404,16 +401,11 @@ export default {
 
         }
 
-
-        let music = ref(null);
-
-        const Reding = computed({
-            get: () => {
-                return ` <audio id="music" preload controls style="width: 100%">
-                             <source src="${data_data.RecordingUrl}" type="audio/wav">
-                         </audio>`;
-            }
+        // 计算进度条 的 数字展示
+        const mark_num = computed(() => {
+            return detail_data.value.Tosell + '/' + detail_data.value.sales
         })
+
 
         DetailPhoneRecording()
         onMounted(() => {
@@ -421,8 +413,6 @@ export default {
             getDetail();
             getUserid()
             SearchClueBuyNUm()
-
-
         })
 
         return {
@@ -438,9 +428,8 @@ export default {
             getBuy,
             flatActive,
             Cshow,
-            Reding,
-            music,
             timer,
+            mark_num,
 
             ...toRefs(data_data)
         }
