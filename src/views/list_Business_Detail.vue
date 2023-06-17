@@ -60,14 +60,14 @@
                     <van-button plain block v-if="detail_data.flag===3" disabled type="primary">线索已下架</van-button>
 
                     <van-button v-else block @click="getBuy(0)" plain :disabled="!residueNum" type="primary">
-                        {{ residueNum <= 0 ? '已无购余额' : '买断剩余名额' }}
+                        {{ residueNum <= 0 ? '已无购余额' : '买断全部线索' }}
                     </van-button>
                 </van-col>
                 <van-col :span="detail_data.sales > 1?12:24">
                     <van-button v-if="detail_data.flag===3" block disabled type="primary">线索已下架</van-button>
                     <van-button v-else :disabled="flatActive? true:!residueNum" @click="getBuy(1)" block
                                 type="primary">
-                        {{ flatActive ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即接单' }}
+                        {{ flatActive ? '已购买' : residueNum <= 0 ? '已无购余额' : '立即购买线索' }}
                     </van-button>
                 </van-col>
             </van-row>
