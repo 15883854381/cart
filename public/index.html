@@ -16,11 +16,11 @@
 <!-- built files will be auto injected -->
 </body>
 <script>
-    // // //禁止在外置浏览器打开
-    // let ua = navigator.userAgent.toLowerCase();
-    // let isWeixin = ua.indexOf('micromessenger') !== -1;
-    // if (!isWeixin) {
-    //     window.location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1db4af9dd7f6371f"
-    // }
+    //禁止在外置浏览器打开
+    let ua = navigator.userAgent.toLowerCase();
+    let isWeixin = ua.indexOf('micromessenger') !== -1;
+    if (!isWeixin) {
+        window.location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx1db4af9dd7f6371f"
+    }
 </script>
 </html>
