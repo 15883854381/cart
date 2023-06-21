@@ -31,7 +31,7 @@
             <span class="Detail_num" style="color: #333333">【{{ detail_data.PhoneBelongingplace }}】</span>
         </div>
 
-        <div class="user_tags">
+        <div class="user_tags" v-if="detail_data.tags?.length">
             <span class="Detail_title">客户意向：</span>
             <van-tag plain type="primary" v-for="item in detail_data.tags" :key="item">{{ item.tagName }}</van-tag>
         </div>
@@ -45,7 +45,7 @@
              style="display: flex;justify-content: space-between;align-items: center;">
             <span class="Detail_title">线索录音：</span>
             <div style="width: 100%;flex: 1">
-                <audios setData  :key="timer" :src="RecordingUrl"></audios>
+                <audios setData :key="timer" :src="RecordingUrl"></audios>
             </div>
         </div>
         <div class="Detail_progres">
@@ -210,7 +210,7 @@ export default {
                 wx.ready(() => {
                     let shareData = {
                         title: `${detail_data.value.provinceCity ? `【${detail_data.value.provinceCity}】` : ''}${detail_data.value.brandname ? `【${detail_data.value.brandname}】` : ''}线索`,
-                        desc: `${detail_data.value.user_name}有购买意向。    ${time}`,
+                        desc: `${detail_data.value.user_name}有购车意向。    ${time}`,
                         link: location.href + UserId.value, // 分享后的地址
                         imgUrl: 'https://wx.qlogo.cn/mmopen/fc1ljSVWaib9pFQd4BSdYss8QmTcQX6p6NqicNGS6m7ABXqvgPNxKeW5KWvAmwIK229Nm7z5cWaPct8V5lhzQsEzGNUyLya01z/64',
                     };
@@ -311,7 +311,6 @@ export default {
             // 创建订单并存在数据库
             CeatedOrder({clue_id, type, buytype}).then((res) => {
                 let data = res.data
-                console.log(data)
                 if (data.code === 200) {
                     router.push({
                         path: '/payment',
@@ -364,7 +363,6 @@ export default {
                         // })
                         return false;
                     case 309:
-                        console.log(code)
                         showNotify(mes)
                         return false;
                 }
@@ -407,7 +405,9 @@ export default {
         })
 
 
+
         DetailPhoneRecording()
+
         onMounted(() => {
             PermissionValidation()
             getDetail();

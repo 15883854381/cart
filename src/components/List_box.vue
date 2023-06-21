@@ -12,7 +12,7 @@
         <div class="tag_box">
 
             <div class="tag_box_tag">
-                <span style="font-size: 13px"><b>意向：</b></span>
+                <span v-if="Cluedata.child?.length" style="font-size: 13px"><b>意向：</b></span>
 
                 <van-tag v-for="item in Cluedata.child" :key="item" plain type="primary">{{ item.tagName }}</van-tag>
             </div>
