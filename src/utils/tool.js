@@ -1,9 +1,11 @@
-import {showDialog, showNotify} from "vant";
+import {showConfirmDialog, showNotify, showToast} from "vant";
 import {loginVerify} from "@/api/utils";
-import {showConfirmDialog} from 'vant';
+import * as constant from "@/utils/constant";
 import router from "@/router";
-import {useRoute} from "vue-router";
-
+import {uin_base64, wwwUrl} from "@/utils/constant";
+import {WechatAttentionVerification} from "@/api/user_data";
+import {useRoute} from 'vue-router'
+import {showLoadingToast, closeToast} from 'vant';
 
 /**
  *
@@ -73,7 +75,7 @@ export function timeago(dateTimeStamp) {
     return result;
 }
 
-
+// 获取get参数
 export function getQueryString(name) {
     const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
     const result = window.location.search.substring(1).match(reg);
@@ -83,8 +85,9 @@ export function getQueryString(name) {
     return null;
 }
 
-// 登录验证
+// 登录状态验证
 export async function logVer() {
+
     let res = await loginVerify()
     switch (res.data.code) {
         case 401:
@@ -153,7 +156,54 @@ export async function logVer() {
         // case 200:
         //     return true
     }
+
 }
 
+// 判断是否关注关注号
+export function followWechat() {
+    return new Promise((resolve, reject) => {
+        if (sessionStorage.getItem('WechatAttentionVerification')) {
+            return false;
+        }
+        let code = getQueryString('code')
+        let route = useRoute();
+        let type = route.query.type
+        let clue_id = route.query.clue_id
+        let url = `${wwwUrl}/#/list_Business_Detail?type=${type}&clue_id=${clue_id}`;
+        if (!code) {
+            location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${constant.appid}&redirect_uri=${encodeURIComponent(url)}&response_type=code&scope=snsapi_base&state=123#wechat_redi`;
+        } else {
+            WechatAttentionVerification({code}).then(res => {
 
-// 通过原生 JS 去获取 code
+                if (res.data.code !== 200) {
+                    const toast = showLoadingToast({
+                        duration: 0,
+                        forbidClick: true,
+                        message: '未关注公众号,请先关注公众号\r\n倒计时 3 秒',
+                        className: 'LoadingToast',
+                        closeOnClick: true
+                    });
+
+                    let second = 3;
+                    const timer = setInterval(() => {
+                        second--;
+                        if (second) {
+                            toast.message = `未关注公众号,请先关注公众号\r\n倒计时 ${second} 秒`;
+                        } else {
+
+                            clearInterval(timer);
+                            closeToast();
+                            window.location.href = 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=' + uin_base64 + '&scene=110#wechat_redirect';
+                        }
+                    }, 1000);
+                    resolve(false)
+                } else {
+                    sessionStorage.setItem('WechatAttentionVerification', '1')
+                    resolve(true)
+                }
+
+            })
+        }
+        console.log(code)
+    })
+}

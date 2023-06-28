@@ -47,3 +47,7 @@ export function batchUcheckData(data) {
 export function DetailPhoneRecordingData(data) {
     return axios.post('/Clue/DetailPhoneRecording', data)
 }
+// 线索推荐列表
+export function ClueRecommendedData(data) {
+    return axios.post('/Clue/ClueRecommended', data)
+}

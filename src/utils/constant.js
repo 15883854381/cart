@@ -3,3 +3,7 @@ export const wwwUrl = process.env.NODE_ENV === "development"?'http://e.199909.xy
 // 正式账号
 export const appid = process.env.NODE_ENV === "development"?'wx1db4af9dd7f6371f':'wxdcf354de383af42c' // 公众号的appid
 export const appsecret = process.env.NODE_ENV === "development"?'9aa5ad7b6b2f6d221a83769ab8c14ea9':'4395772d88f8aaf37691d2a7255e9f20' // 公众号的appsecret
+
+export const uin_base64 = process.env.NODE_ENV === "development"?'MzkyOTQ4MzI3Mw==':'Mzk0NTQ5NzI2MQ==' // 公众号的appsecret
+
+

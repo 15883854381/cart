@@ -18,3 +18,8 @@ export function getcode(data){
 export function UserInfoData(data){
     return axios.post('User/UserInfo',data)
 }
+
+// 验证是否关注关注号
+export function WechatAttentionVerification(data){
+    return axios.post('User/WechatAttentionVerification',data)
+}

@@ -140,16 +140,18 @@ import line_text from '@/components/line_text.vue'
 import List_box from "@/components/List_box.vue";
 import audios from '@/components/audioComopnnets.vue'
 import shareArrowhead from '@/components/share_arrowhead.vue'
-import {DetailPhoneRecordingData, getClueDetail, getClueList, SearchClueBuyNUmData} from "@/api/clue"
+import {followWechat} from '@/utils/tool'
+import {ClueRecommendedData, DetailPhoneRecordingData, getClueDetail, SearchClueBuyNUmData} from "@/api/clue"
 import {closeToast, showConfirmDialog, showLoadingToast, showNotify} from 'vant';
 import dayjs from 'dayjs'
 
-import {onMounted, ref, getCurrentInstance, computed, toRefs, reactive} from "vue";
+import {computed, getCurrentInstance, onMounted, reactive, ref, toRefs} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {getUserId, loginVerify, shareClue} from "@/api/utils";
 import {CeatedOrder} from "@/api/order";
 import wx from 'weixin-js-sdk'
+import {wwwUrl} from "@/utils/constant";
 
 export default {
     name: "list_Business_Detail",
@@ -271,10 +273,17 @@ export default {
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
                 getUserIdBtn();
                 getShareInfo()
-            })
-            getClueList().then((res) => {
-                listData.value = res.data.data.data;
-                closeToast()
+
+                // 推荐线索
+                let {data} = res.data
+                ClueRecommendedData({
+                    provinceID: data[0].provinceID,
+                    cityID: data[0].cityID,
+                    clue_id: data[0].clue_id
+                }).then((res) => {
+                    listData.value = res.data.data;
+                    closeToast()
+                })
             })
         }
 
@@ -330,6 +339,20 @@ export default {
 
         // 权限验证
         async function PermissionValidation() {
+            if (!localStorage.getItem('token')) {
+                if (!sessionStorage.getItem('WechatAttentionVerification')) {
+                    let followWechatState = await followWechat()
+                    if (followWechatState) {
+                        let type = route.query.type
+                        let clue_id = route.query.clue_id
+                        window.location.href = `${wwwUrl}/#/list_Business_Detail?type=${type}&clue_id=${clue_id}`;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+
             let res = await loginVerify()
             let {mes, code} = res.data
             if (code !== 200 && code !== 400) {
@@ -394,16 +417,16 @@ export default {
                 let {code, data} = res.data
                 if (code === 200) {
                     data_data.RecordingUrl = data.record_file_url
+                } else {
+                    data_data.RecordingUrl = ""
                 }
             })
-
         }
 
         // 计算进度条 的 数字展示
         const mark_num = computed(() => {
             return detail_data.value.Tosell + '/' + detail_data.value.sales
         })
-
 
 
         DetailPhoneRecording()
@@ -438,7 +461,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .Detail {
   padding: 0 10px;
   font-size: 15px;
@@ -570,5 +593,12 @@ export default {
   color: #999;
   font-size: 12px
 }
+
+.LoadingToast {
+  width: 215px !important;
+  height: 108px !important;
+  font-size: 16px
+}
+
 
 </style>

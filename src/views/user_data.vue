@@ -1,4 +1,12 @@
 <template>
+
+
+
+
+<!--    <a href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzkyOTQ4MzI3Mw==&scene=110#wechat_redirect">-->
+<!--        <i class="fa fa-user-plus"></i> 点击关注xx公众号，获得更多免费服务-->
+<!--    </a>-->
+
     <div class="margin_box">
         <div class="my-box" v-cloak>
             <div class="m-head">

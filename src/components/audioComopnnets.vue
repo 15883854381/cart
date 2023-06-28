@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {onBeforeUnmount, onMounted, reactive, ref} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, reactive, ref} from "vue";
 import {Howl} from "howler";
 
 export default {
@@ -90,6 +90,9 @@ export default {
         }
         onBeforeUnmount(() => {
             soundPause()
+            setTimeout(()=>{
+                soundPause()
+            },200)
         })
         onMounted(() => {
             sound = new Howl({

@@ -10,12 +10,12 @@ const routes = [
     {
         path: "/",
         component: () => import("../views/list_Business.vue"),
-        meta: {title: "商机列表"},
+        meta: {title: "线索列表"},
     },
     {
         path: "/list_Business",
         component: () => import("../views/list_Business.vue"),
-        meta: {title: "商机列表"},
+        meta: {title: "线索列表"},
     }, {
         path: "/user_data",
         component: () => import("../views/user_data.vue"),
@@ -24,7 +24,7 @@ const routes = [
     }, {
         path: "/my_Business",
         component: () => import("../views/my_Business.vue"),
-        meta: {title: "我的商机"},
+        meta: {title: "我的线索"},
     }, {
         path: "/deal_Business",
         component: () => import("../views/deal_Business.vue"),
@@ -114,6 +114,14 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
 
     document.title = "汽车线索助手联盟-" + to.matched[0].meta.title;
+
+
+    if (window._hmt) {
+        if (to.path) {
+            window._hmt.push(['_trackPageview', '/#' + to.fullPath])
+        }
+    }
+
     next();
     // /up_Business
     // my_Clue UpOrder

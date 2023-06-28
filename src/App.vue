@@ -60,4 +60,5 @@ export default {
     margin-bottom: 50px;
     overflow: hidden;
 }
+
 </style>
