@@ -94,10 +94,10 @@ export async function logVer() {
         case 306:
         case 307:
             showConfirmDialog({
-                title: '资料审核',
+                title: '资料未审核',
                 message: `${res.data.mes}`
             }).then(() => {
-                router.push('/upUserInfo')
+                router.push('/customer') // /upUserInfo
             })
             return 3058;
         case 308:

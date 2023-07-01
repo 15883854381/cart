@@ -33,7 +33,7 @@ export default {
         },
         src: {
             type: String,
-            default: 'https://hxyrecord.oss-cn-beijing.aliyuncs.com/haoxiaoyun/2023-06-14/4a42e7c6fe96a9779d76589c9999d644.wav',
+            default: 'http://s.199909.xyz/storage/audio/20230628/q-6001-unknown-20230627-103851-1687833517.7813.wav',
             required: true,
         }
     },
@@ -45,7 +45,8 @@ export default {
 
         let sound = new Howl({
             src: props.src,
-            html5: true,
+            // html5: true,
+            autoplay: true,
             onload: function () {
                 maxvalue.value = parseInt(sound.duration())
             },

@@ -4,7 +4,7 @@
     <van-tabs v-model:active="active" @click-tab="onClickTab">
         <van-tab title="新车(线索)">
             <list_Business_NewBropdown @BropdownData="BropdownData"></list_Business_NewBropdown>
-            <div class="margin_business_box" @scroll="getScode">
+            <div class="margin_business_box" id="new_wrapper" @scroll="getScode">
                 <div class="business_box">
                     <List_box v-for="item in clueList" @click="toUrl(item)" :Cluedata="item"
                               :key="item.clue_id"></List_box>
@@ -13,7 +13,7 @@
         </van-tab>
         <van-tab title="二手车(线索)">
             <list_Business_NewBropdown @BropdownData="OldBropdownData"></list_Business_NewBropdown>
-            <div class="margin_business_box" id="wrapper" @scroll="getScode">
+            <div class="margin_business_box"  id="wrapper" @scroll="getScode">
                 <div class="business_box">
                     <List_box :key="item.clue_id" :Cluedata="item" v-for="item in oleClue"
                               @click="toUrl(item)"></List_box>
@@ -33,7 +33,9 @@ import list_Business_NewBropdown from "@/components/list_Business_NewBropdown.vu
 import {useRouter} from "vue-router";
 import {getClueList, SelectCartData} from "@/api/clue";
 import {closeToast, showLoadingToast} from "vant";
+import {UlitsShare} from "@/hooks/Ulits";
 // import JRoll from 'jroll-lite'
+
 
 export default {
 
@@ -55,6 +57,8 @@ export default {
         let timeTrue = null;
         let RefreshTime = 30;
         let oldCartCount = ref(0)
+        let SearchData = {};
+        let OldSearchData = {};
 
 
         // 跳转详情页面
@@ -71,7 +75,9 @@ export default {
 
         function BropdownData(e) {
             RefreshTime = e.RefreshTime
+            SearchData = e
             getdata(e);
+            document.getElementById('new_wrapper').scrollTop = 0
             if (e.RefreshTime === 0) {
                 clearInterval(timeTrue)
             }
@@ -79,7 +85,9 @@ export default {
 
         function OldBropdownData(e) {
             RefreshTime = e.RefreshTime
+            OldSearchData = e
             SelectCart(e)
+            document.getElementById('wrapper').scrollTop = 0
             if (e.RefreshTime === 0) {
                 clearInterval(timeTrue)
             }
@@ -122,7 +130,7 @@ export default {
                             message: '加载中...',
                             forbidClick: true,
                         });
-                        getClueList({pageNum: pageNum.value}).then(res => {
+                        getClueList({...SearchData, pageNum: pageNum.value}).then(res => {
                             let {data, count} = res.data.data
                             ClueCOunt.value = count
                             for (let item in data) {
@@ -138,7 +146,7 @@ export default {
                             message: '加载中...',
                             forbidClick: true,
                         });
-                        SelectCartData({PageNum: oldPageNum.value}).then(res => {
+                        SelectCartData({...OldSearchData, PageNum: oldPageNum.value}).then(res => {
                             let {data, count} = res.data.data
                             oldCartCount.value = count
                             for (let item in data) {
@@ -163,13 +171,13 @@ export default {
                     await SelectCart({PageNum: oldPageNum.value})
                     closeToast();
                 }
-
             }
         }
 
 
         onMounted(() => {
             getdata()
+            UlitsShare()
 
             //     ===== 二手车 =======
 

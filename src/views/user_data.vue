@@ -57,9 +57,9 @@
                     <van-grid-item icon="coupon-o" @click="toUrl('/UpOrder')" text="我的线索"/>
                     <van-grid-item icon="balance-o" @click="toUrl('/income')" text="累计收益"/>
                     <van-grid-item icon="share-o" @click="toUrl('/share')" text="我的分享"/>
-                    <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>
+<!--                    <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>-->
                     <van-grid-item icon="service-o" to="/customer" text="联系客服"/>
-                    <!--                    <van-grid-item icon="service-o" to="/test" text="测试"/>-->
+<!--                                        <van-grid-item icon="service-o" to="/test" text="测试"/>-->
                     <van-grid-item icon="replay" @click="clearData" text="退出登录"/>
                 </van-grid>
             </div>
@@ -406,7 +406,7 @@ export default {
                             title: '资料审核',
                             message: mes,
                         }).then(() => {
-                            router.push('/upUserInfo')
+                            router.push('/customer') // /upUserInfo
                         })
                         return false;
                     case 308:

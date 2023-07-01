@@ -321,6 +321,7 @@ export default {
             CeatedOrder({clue_id, type, buytype}).then((res) => {
                 let data = res.data
                 if (data.code === 200) {
+                    //  TODO 在此处不做跳转了 ，直接付款
                     router.push({
                         path: '/payment',
                         query: {
@@ -373,7 +374,7 @@ export default {
                             title: '资料审核',
                             message: mes
                         }).then(() => {
-                            router.push('/upUserInfo')
+                            router.push('/customer') // /upUserInfo
                         })
                         return false;
                     case 308:
