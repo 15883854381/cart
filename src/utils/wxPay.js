@@ -38,6 +38,10 @@ export default {
                     // 支付成功时返回resolve
                     resolve(res)
                 },
+                cancel: (res) => {
+                    // 取消支付后的回调函数
+                    reject(res)
+                },
                 fail: (err) => {
                     // 支付失败时返回reject
                     reject(err)

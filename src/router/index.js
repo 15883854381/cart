@@ -101,6 +101,14 @@ const routes = [
         path: "/income",
         component: () => import("../views/income.vue"),
         meta: {title: "累计收益"},
+    }, {
+        path: "/bulkbuying",
+        component: () => import("../views/bulkbuying.vue"),
+        meta: {title: "批量购买"},
+    }, {
+        path: "/Shoppingcart",
+        component: () => import("../views/Shoppingcart.vue"),
+        meta: {title: "仓库"},
     }
 ];
 

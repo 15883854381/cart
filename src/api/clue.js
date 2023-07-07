@@ -47,7 +47,28 @@ export function batchUcheckData(data) {
 export function DetailPhoneRecordingData(data) {
     return axios.post('/Clue/DetailPhoneRecording', data)
 }
+
 // 线索推荐列表
 export function ClueRecommendedData(data) {
     return axios.post('/Clue/ClueRecommended', data)
+}
+
+// 批量购查询线索接口
+export function BulkbuyingData(data) {
+    return axios.post('/Clue/Bulkbuying', data)
+}
+
+// 批量购查 查询价格
+export function price_computeData(data) {
+    return axios.post('/Clue/price_compute', data)
+}
+
+// 批量购查 下单
+export function BuyNowData(data) {
+    return axios.post('/Clue/BuyNow', data)
+}
+
+// 支付失败的回调
+export function errorNotifyBath($url) {
+    return axios.post($url)
 }

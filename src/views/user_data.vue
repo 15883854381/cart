@@ -1,11 +1,9 @@
 <template>
 
 
-
-
-<!--    <a href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzkyOTQ4MzI3Mw==&scene=110#wechat_redirect">-->
-<!--        <i class="fa fa-user-plus"></i> 点击关注xx公众号，获得更多免费服务-->
-<!--    </a>-->
+  <!--    <a href="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzkyOTQ4MzI3Mw==&scene=110#wechat_redirect">-->
+  <!--        <i class="fa fa-user-plus"></i> 点击关注xx公众号，获得更多免费服务-->
+  <!--    </a>-->
 
     <div class="margin_box">
         <div class="my-box" v-cloak>
@@ -57,81 +55,14 @@
                     <van-grid-item icon="coupon-o" @click="toUrl('/UpOrder')" text="我的线索"/>
                     <van-grid-item icon="balance-o" @click="toUrl('/income')" text="累计收益"/>
                     <van-grid-item icon="share-o" @click="toUrl('/share')" text="我的分享"/>
-<!--                    <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>-->
+                    <!--                    <van-grid-item icon="edit" @click="toUrl('/upUserInfo')" text="审核信息"/>-->
+                    <van-grid-item icon="shopping-cart-o" @click="toUrl('/bulkbuying')" text="批量下单"/>
                     <van-grid-item icon="service-o" to="/customer" text="联系客服"/>
-<!--                                        <van-grid-item icon="service-o" to="/test" text="测试"/>-->
+                    <!--                                        <van-grid-item icon="service-o" to="/test" text="测试"/>-->
                     <van-grid-item icon="replay" @click="clearData" text="退出登录"/>
                 </van-grid>
             </div>
-            <!--            <div class="logout">-->
-            <!--                <van-button @click="clearData" color="linear-gradient(to right, #ff6034, #ee0a24)" block>退出登录-->
-            <!--                </van-button>-->
-            <!--            </div>-->
 
-
-            <!-- 充值盒子 -->
-            <!--        <div class="Topup">-->
-            <!--            &lt;!&ndash; 余额 &ndash;&gt;-->
-            <!--            <van-cell title="账户余额">-->
-            <!--                <template v-slot:value>-->
-            <!--          <span class="money-font"-->
-            <!--          >{{ userInfo.balance || "0.00" }}&nbsp;元</span-->
-            <!--          >-->
-            <!--                </template>-->
-            <!--            </van-cell>-->
-            <!--            &lt;!&ndash; 支付 &ndash;&gt;-->
-            <!--            <van-row class="money_input">-->
-            <!--                <van-col span="18">-->
-            <!--                    <van-field-->
-            <!--                            class="money_input-border"-->
-            <!--                            value="0.00"-->
-            <!--                            type="number"-->
-            <!--                            label="充值金额"-->
-            <!--                            placeholder="请选择充值金额"/>-->
-            <!--                </van-col>-->
-            <!--                <van-col span="6" class="money_input_btn">-->
-            <!--                    <van-button type="primary">立即支付</van-button>-->
-            <!--                </van-col>-->
-            <!--            </van-row>-->
-
-
-            <!--            <div>-->
-            <!--                <van-row gutter="20" class="tag_box">-->
-            <!--                    <van-col span="8" class="tag_content">-->
-            <!--                        <van-tag plain class="tag_size" type="success">39元</van-tag>-->
-            <!--                    </van-col>-->
-            <!--                    <van-col span="8" class="tag_content">-->
-            <!--                        <van-tag plain class="tag_size" type="success">39元</van-tag>-->
-            <!--                    </van-col>-->
-            <!--                    <van-col span="8" class="tag_content">-->
-            <!--                        <van-tag plain class="tag_size" type="success">39元</van-tag>-->
-            <!--                    </van-col>-->
-            <!--                    <van-col span="8" class="tag_content">-->
-            <!--                        <van-tag plain class="tag_size" type="success">39元</van-tag>-->
-            <!--                    </van-col>-->
-            <!--                    <van-col span="8" class="tag_content">-->
-            <!--                        <van-tag plain class="tag_size" type="success">39元</van-tag>-->
-            <!--                    </van-col>-->
-            <!--                    <van-col span="8" class="tag_content">-->
-            <!--                        <van-tag plain class="tag_size" type="success">39元</van-tag>-->
-            <!--                    </van-col>-->
-            <!--                </van-row>-->
-            <!--            </div>-->
-            <!--        </div>-->
-
-
-            <!--        <van-cell-group>-->
-            <!--            <van-cell title="上传线索" @click="toUrl('/up_Business')" is-link/>-->
-            <!--            <van-cell title="我的购买订单" @click="toUrl('/my_Clue')" is-link/>-->
-            <!--            <van-cell title="我上传的线索" @click="toUrl('/UpOrder')" is-link/>-->
-            <!--            <van-cell title="我的分享" @click="toUrl('/share')" is-link/>-->
-            <!--            <van-cell title="上传审核信息" to="/upUserInfo" is-link/>-->
-            <!--            <van-cell title="联系客服" to="/customer" is-link/>-->
-            <!--            <van-cell title="关于我们" is-link/>-->
-            <!--            <van-cell title="退出登录" @click="clearData" is-link/>-->
-            <!--            &lt;!&ndash;            <van-cell title="测试用" to="/test" is-link/>&ndash;&gt;-->
-            <!--        </van-cell-group>-->
-            <!-- 弹出层 confirmBtn 确认按钮 -->
             <van-dialog
                     v-model:show="shows"
                     title="登录/注册"
