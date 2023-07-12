@@ -263,16 +263,23 @@ export default {
 
         // 初始化页面数据
         function getDetail(clueid, cart_type) {
-            let clue_id = clueid || route.query.clue_id;
-            let type = cart_type || route.query.type
-            getClueDetail({clue_id, type}).then((res) => {
+            let upobj = {
+                clue_id: clueid || route.query.clue_id,
+                type: cart_type || route.query.type,
+            }
+
+            if (localStorage.getItem('userid') && localStorage.getItem('clue_id') === upobj.clue_id) {
+                upobj.userid = localStorage.getItem('userid')
+            }
+
+            getClueDetail(upobj).then((res) => {
                 if (res.data.code !== 200 || res.data?.code === undefined) {
                     return false;
                 }
                 detail_data.value = res.data.data[0]
                 residueNum.value = detail_data.value.sales - detail_data.value.Tosell
                 getUserIdBtn();
-                getShareInfo()
+                getShareInfo();
 
                 // 推荐线索
                 let {data} = res.data
@@ -293,7 +300,7 @@ export default {
                 message: '加载中...',
                 forbidClick: true,
             });
-            getDetail(item.clue_id, item.cart_type)
+            getDetail(item.clue_id, item.cart_type) // 列表重新初始化
             DetailPhoneRecording(item.clue_id)
             SearchClueBuyNUm(item.clue_id)
             setTimeout(() => {
@@ -400,6 +407,7 @@ export default {
             let userid = route.query?.userid;
             if (userid !== undefined) {
                 localStorage.setItem('userid', userid)
+                localStorage.setItem('clue_id', route.query.clue_id)
             }
         }
 

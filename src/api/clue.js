@@ -72,3 +72,7 @@ export function BuyNowData(data) {
 export function errorNotifyBath($url) {
     return axios.post($url)
 }
+// 下载文件
+export function DownFileExcelClueData(){
+    return axios.post('/Clue/DownFileExcelClue')
+}

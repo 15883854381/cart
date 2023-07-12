@@ -54,7 +54,8 @@ export default {
 </script>
 
 <style>
-@import "//at.alicdn.com/t/c/font_4027755_ethzpxfw6ju.css";
+@import "//at.alicdn.com/t/c/font_4027755_uj5d29fvt.css";
+
 
 .view_content {
     margin-bottom: 50px;

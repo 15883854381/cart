@@ -1,5 +1,5 @@
 <script setup>
-import {defineProps, defineEmits, reactive} from 'vue'
+import {reactive} from 'vue'
 
 const props = defineProps({
     PhoneBelongingplace: String,
